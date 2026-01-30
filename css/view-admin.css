@@ -1,0 +1,119 @@
+/* ================== 管理后台视图样式 ================== */
+
+/* 1. 左侧 Sidebar - 活动列表 */
+
+/* 活动卡片 (区别于学生列表) */
+.activity-card {
+    padding: 12px 15px; margin-bottom: 10px; border-radius: 12px;
+    background: #FAFAFA; border: 1px solid #EEE; cursor: pointer;
+    transition: 0.2s; display: flex; flex-direction: column; gap: 5px;
+}
+.activity-card:hover { transform: translateX(3px); border-color: #FFCCBC; }
+.activity-card.active {
+    background: #FFF3E0; border-color: var(--primary); 
+    box-shadow: 0 2px 8px rgba(255,107,107,0.1);
+}
+
+.act-title { font-weight: 800; font-size: 14px; color: #333; }
+.act-meta { display: flex; justify-content: space-between; font-size: 11px; color: #888; margin-top: 4px; }
+
+/* 底部添加按钮区 */
+.add-btn-area { padding: 15px; border-top: 1px solid #EEE; text-align: center; }
+.btn-add-dashed {
+    width: 100%; padding: 10px; border: 2px dashed #FFB74D; border-radius: 10px;
+    background: #FFF8E1; color: #F57C00; font-weight: bold; cursor: pointer; font-size: 13px;
+    transition: 0.2s;
+}
+.btn-add-dashed:hover { background: #FFF3E0; transform: scale(1.02); }
+
+
+/* 2. 右侧 Setting Form - 表单组件 */
+
+.form-group { margin-bottom: 20px; }
+.form-group label { 
+    display: block; font-size: 13px; font-weight: 800; 
+    color: var(--text-sub); margin-bottom: 8px; 
+}
+
+/* 提示信息盒 */
+.info-box { 
+    background: #E3F2FD; border: 1px solid #BBDEFB; 
+    border-radius: 8px; padding: 10px; 
+    font-size: 12px; color: #1565C0; line-height: 1.5; 
+}
+
+/* iOS 风格 Switch 开关 */
+.toggle-row { display: flex; justify-content: space-between; align-items: center; }
+.switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider { 
+    position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; 
+    background-color: #E0E0E0; transition: .4s; border-radius: 34px; 
+}
+.slider:before { 
+    position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; 
+    background-color: white; transition: .4s; border-radius: 50%; 
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2); 
+}
+input:checked + .slider { background-color: var(--primary); }
+input:checked + .slider:before { transform: translateX(20px); }
+
+
+/* 3. 批量操作浮动栏 (Batch Toolbar) */
+.batch-bar {
+    position: fixed; bottom: 30px; left: 50%; 
+    transform: translateX(-50%) translateY(100px);
+    background: #37474F; color: white; 
+    padding: 10px 25px; border-radius: 50px;
+    display: flex; gap: 30px; align-items: center; 
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    z-index: 1000; 
+    transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+    opacity: 0;
+}
+.batch-bar.active { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+.btn-tool {
+    background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2);
+    color: white; padding: 6px 15px; border-radius: 20px; cursor: pointer;
+    font-size: 13px; font-weight: bold; transition: 0.2s;
+}
+.btn-tool:hover { background: rgba(255,255,255,0.3); transform: translateY(-2px); }
+.btn-tool.cancel { background: #FF5252; border-color: #FF5252; }
+.batch-group { display: none; gap: 10px; }
+
+/* ================== 补回：弹窗 Modal 样式 ================== */
+.modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(93, 64, 55, 0.4); backdrop-filter: blur(4px);
+    z-index: 9999; display: flex; align-items: center; justify-content: center;
+    animation: fadeIn 0.2s ease-out;
+}
+.modal-content {
+    background: white; width: 360px; max-width: 90%;
+    border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    overflow: hidden; animation: slideUp 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+}
+.modal-header {
+    padding: 15px 20px; background: #FFF9F0; border-bottom: 1px solid #FFE0B2;
+    display: flex; justify-content: space-between; align-items: center; font-weight: 800; color: var(--text-main);
+}
+.modal-body { padding: 20px; }
+.modal-footer {
+    padding: 15px 20px; border-top: 1px solid #EEE;
+    display: flex; justify-content: flex-end; gap: 10px;
+}
+.radio-group { display: flex; flex-direction: column; gap: 8px; }
+.radio-item { cursor: pointer; position: relative; }
+.radio-item input { position: absolute; opacity: 0; }
+.radio-bg {
+    display: flex; align-items: center; padding: 10px 15px;
+    background: #FAFAFA; border: 2px solid #EEE; border-radius: 10px;
+    font-weight: 700; font-size: 13px; color: #999; transition: 0.2s;
+}
+.radio-item input:checked + .radio-bg { background: #E8F5E9; border-color: var(--success); color: #2E7D32; }
+.radio-item input[value="reward"]:checked + .radio-bg { background: #FFF3E0; border-color: #FFB74D; color: #E65100; }
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+

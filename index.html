@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>作业冒险岛 - 完整版 (重构)</title>
+    <link rel="stylesheet" href="css/font.css">
+    <link rel="stylesheet" href="css/style.css"> 
+	<link rel="stylesheet" href="css/map.css">
+	<link rel="stylesheet" href="css/view-student.css">
+	<link rel="stylesheet" href="css/view-admin.css">
+	<link rel="stylesheet" href="css/modal.css">
+	<link rel="stylesheet" href="css/class-mgr.css">
+	<link rel="stylesheet" href="css/suc.css">
+</head>
+<body>
+
+    <div id="batchToolbar" class="batch-bar">
+        <div style="font-weight:bold; font-size:14px;">
+            已选中 <span id="selectedCount" style="color:#FFEB3B; font-size:18px;">0</span> 天
+        </div>
+        
+        <div id="tools-homework" class="batch-group">
+            <button class="btn-tool" style="background:#4CAF50; border-color:#4CAF50;" onclick="applyBatch('done')">✅ 设为已交</button>
+            <button class="btn-tool" style="background:#FF5252; border-color:#FF5252;" onclick="applyBatch('missing')">❌ 设为缺交</button>
+        </div>
+
+        <div id="tools-map" class="batch-group">
+            <button class="btn-tool" >🏖️ 设为休息</button>
+            <button class="btn-tool" >🔒 设为锁定</button>
+            <button class="btn-tool" >📝 设为普通</button>
+        </div>
+
+        <div style="width:1px; background:rgba(255,255,255,0.3); margin:0 5px;"></div>
+        <button class="btn-tool cancel" onclick="exitBatchMode()">退出批量</button>
+    </div>
+
+    <div class="header">
+        <h1><span>🏝️</span> 作业冒险岛</h1>
+        <div style="display:flex; align-items:center; gap:10px;">
+			<button class="btn-ghost" id="btn-open-cm" onclick="openClassManager();">🏫 班级管理</button>
+            <button class="btn-ghost">🔙 返回首页</button>
+            <button class="btn-ghost">📂 导入记录</button>
+            <div style="width:1px; height:16px; background:#DDD; margin:0 5px;"></div>
+            <button class="btn-save">💾 保存数据</button>
+            <button class="btn-ghost" style="color:var(--text-main);" onclick="toggleSettings()">⚙️ 设置</button>
+        </div>
+    </div>
+	
+	
+	
+    <div id="app-components"></div>
+	
+	
+	<script src="components/tpl_student.js"></script> 
+	<script src="components/tpl_admin.js"></script>   
+	<script src="components/tpl_modal.js"></script>  
+	<script src="components/tpl_class_mgr.js"></script>
+	<script src="js/script.js"></script>
+	<script src="js/logic_modal.js"></script>
+	<script src="js/logic_admin.js"></script>
+	<script src="js/logic_class_mgr.js"></script>
+	
+	<script>
+        const container = document.getElementById('app-components');
+        let fullHtml = '';
+        if (window.AppTemplates) {
+            for (let key in window.AppTemplates) {
+                fullHtml += window.AppTemplates[key];
+            }
+        }
+        container.innerHTML = fullHtml;
+		
+		loadData();
+    </script>
+	<!-- 成功提示 Toast -->
+	<div id="cm-toast" class="cm-toast" style="display:none;">
+	  <!-- 顶部彩带 -->
+	  <div class="cm-toast-top-icon">🎉</div>
+
+	  <div class="cm-toast-main">
+		<div class="cm-toast-icon">✅</div>
+		<div class="cm-toast-body">
+		  <div class="cm-toast-title" id="cm-toast-title">班级创建成功！</div>
+		  <div class="cm-toast-sub" id="cm-toast-sub">🎉 录入：0 人</div>
+		</div>
+	  </div>
+	</div>
+</body>
+</html>

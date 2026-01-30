@@ -1,0 +1,302 @@
+/* ================== 冒险地图核心组件 (优化版) ================== */
+
+/* 1. 地图容器 */
+.grid-container {
+    flex: 1; 
+    overflow-y: auto; 
+    padding: 25px;
+    display: grid; 
+    grid-template-columns: repeat(7, 1fr); /* 7天一行 */
+    gap: 15px; 
+    align-content: start;
+    transition: opacity 0.2s;
+}
+
+/* 2. 单个格子基础样式 */
+.grid-cell {
+    background: #FFFFFF; 
+    border: 2px solid #FFE0B2;
+    border-radius: 16px;
+    min-height: 120px; 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    justify-content: center;
+    position: relative; 
+    cursor: pointer; 
+    transition: all 0.2s; 
+    color: #AAA; 
+    user-select: none;
+}
+
+.grid-cell:hover { 
+    transform: translateY(-3px); 
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05); 
+}
+
+/* 3. 格子内元素样式 */
+.day-label { 
+    position: absolute; 
+    top: 6px; 
+    left: 8px; 
+    font-size: 16px; 
+    font-weight: 900; 
+    color: #455A64; 
+    z-index: 5;
+}
+
+/* 3. 格子内元素样式 */
+.cell-icon { 
+    /* ✅ 修改点：缩小尺寸，增加透明度 */
+    font-size: 36px;   /* 原来可能是36px，改小 */
+    margin-bottom: 6px; 
+    transition: 0.2s; 
+    opacity: 0.9;      /* 半透明，不要太抢眼 */
+   
+}
+
+/* 鼠标放上去时，图标再变大变清晰 */
+.grid-cell:hover .cell-icon {
+    transform: scale(1.2);
+    opacity: 1;
+    filter: none;
+}
+
+.cell-status-text { 
+    font-size: 13px; 
+    font-weight: 700; 
+}
+
+.cell-date {
+    position: absolute; 
+    bottom: 5px; 
+    font-size: 11px; 
+    font-weight: 700; 
+    color: #90A4AE; 
+    z-index: 2;
+    letter-spacing: 0.5px;
+}
+
+/* 4. 业务状态变体 (Normal States) */
+
+/* 奖励态 */
+.grid-cell.reward {
+    /* 1. 去掉粗边框 */
+    border: none;
+    
+    /* 2. 背景：极淡的奶油黄/琥珀色 */
+    background: #FFF8E1; 
+    
+    /* 3. 文字颜色：深橙金色，保证清晰度 */
+    color: #F57F17;
+    
+    /* 4. 关键：加一个金色的柔光投影，让它看起来比普通格子"贵"一点 */
+    box-shadow: 0 4px 12px rgba(255, 193, 7, 0.15);
+    
+    /* 保持层级 */
+    position: relative;
+    z-index: 2;
+}
+/* 奖励格的日期颜色 (微调适配背景) */
+.grid-cell.reward .cell-date {
+    color: #FFB74D; /* 浅橙色 */
+}
+
+/* 鼠标悬停奖励格：像拆礼物一样弹起来 */
+.grid-cell.reward:hover {
+    transform: translateY(-3px) scale(1.02);
+    background: #FFECB3;
+    box-shadow: 0 8px 20px rgba(255, 193, 7, 0.25);
+}
+
+.grid-cell.done { 
+    /* 1. 去掉边框 */
+    border: none;
+    
+    /* 2. 背景：这是和红色(#FFEBEE)同级的"泛白绿" */
+    /* 这种极淡的绿色会有一种透气感，不堵 */
+    background: #E8F5E9; 
+    
+    /* 3. 文字：使用深绿色，保证在浅底上能看清 */
+    color: #2E7D32; 
+    
+    /* 4. 阴影：加一点点绿色的柔光，代替边框的作用 */
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.15);
+    
+    /* 保持层级 */
+    position: relative;
+    z-index: 1;
+}
+
+/* 完成格的日期颜色 (适配浅绿底) */
+.grid-cell.done .cell-date { 
+    color: #81C784; 
+}
+
+/* 鼠标悬停：颜色稍微加深一点点，就像你的红色框悬停效果一样 */
+.grid-cell.done:hover { 
+    transform: translateY(-3px); 
+    background: #C8E6C9; /* 稍微深一点的薄荷绿 */
+    box-shadow: 0 8px 20px rgba(76, 175, 80, 0.25); 
+}
+
+/* 危险/缺交态 */
+.grid-cell.danger { 
+    /* 1. 核心：去掉刺眼的红边框 */
+    border: none;
+    
+    /* 2. 背景：保持浅红色，一眼就能看到，但不辣眼睛 */
+    background: #FFEBEE; 
+    
+    /* 3. 文字：深红色，保持警示感 */
+    color: #C62828; 
+    
+    /* 4. 关键：用红色光晕代替边框，让它像个红色信号灯一样浮起来 */
+    box-shadow: 0 4px 12px rgba(229, 57, 53, 0.2);
+    
+    /* 提升层级，让它比普通格子更显眼 */
+    position: relative;
+    z-index: 5;
+}
+
+/* 缺交格的日期颜色 */
+.grid-cell.danger .cell-date {
+    color: #EF5350; /* 浅一点的红 */
+}
+/* 鼠标悬停：稍微变深，提示老师"快点我处理" */
+.grid-cell.danger:hover {
+    transform: translateY(-3px);
+    background: #FFCDD2; /* 悬停变深一点 */
+    box-shadow: 0 8px 20px rgba(229, 57, 53, 0.3);
+}
+
+/* ✅ 关键修复：让炸弹图标恢复高清原色 */
+/* 之前的 filter 把图标弄得脏脏的，去掉它！ */
+.grid-cell.danger .cell-icon { 
+    opacity: 1; 
+    filter: none; /* 还原 Emoji 或图标的本色 (通常是黑色炸弹或红色炸弹) */
+    font-size: 38px; /* 稍微放大一点点，强化警示 */
+}
+/* 锁定态 */
+.grid-cell.locked {
+    /* 1. 去掉边框 */
+    border: none;
+    
+    /* 2. 背景：非常淡的灰色，甚至可以接近页面背景 */
+    background: #F5F5F5; 
+    
+    /* 3. 文字：很淡的灰色，表示不可点 */
+    color: #CFD8DC;
+    
+    /* 4. 关键：去掉所有阴影，让它看起来是"扁"的，没有交互欲望 */
+    box-shadow: none;
+    
+    /* 鼠标手势：禁止 */
+    cursor: default;
+}
+/* 锁定格悬停：不要动！不要有阴影！告诉用户点它没用 */
+.grid-cell.locked:hover {
+    transform: none;
+    box-shadow: none;
+    background: #F5F5F5; /* 保持不变 */
+}
+.grid-cell.locked .cell-icon {
+    opacity: 0.3;
+}
+/* 假期/休息态 (幽灵化处理) */
+.grid-cell.holiday { 
+    /* ✅ 修改点：去掉背景色，或者用极淡的背景 */
+    background: transparent;     /* 透明背景 */
+    border: 2px dashed #E0E0E0;  /* 用虚线框代替实心背景 */
+    color: #B0BEC5; 
+}
+.holiday-badge { 
+    position: absolute; right: 8px; top: 8px; 
+    background: #607D8B; color: white; 
+    border-radius: 6px; font-size: 11px; padding: 2px 6px; font-weight: bold; 
+}
+.grid-cell.holiday .cell-date { color: #78909C; }
+
+/* ================== 批量模式专用样式 (高清无码版) ================== */
+
+/* 1. 进入批量模式：待选择状态 */
+/* 纯白底 + 虚线框，去掉所有透明度，保证字体高清 */
+.grid-container.batch-mode .grid-cell {
+    background: #FFFFFF;             /* 纯白背景 */
+    border: 2px dashed #FFCCBC;      /* 浅珊瑚色虚线 */
+    color: #8D6E63;                  /* 使用浅褐色字体 (style.css里的次要文字色)，不使用opacity */
+    transform: scale(0.95);          /* 仅保留大小变化，提示可操作性 */
+    box-shadow: none;                /* 去掉阴影，显得更平铺 */
+    transition: all 0.15s;
+    opacity: 1;                      /* ✅ 强制不透明，确保清晰 */
+}
+
+/* 鼠标悬停 */
+.grid-container.batch-mode .grid-cell:hover {
+    border-color: #FF8A65;           /* 边框变深 */
+    background: #FFFBF7;             /* 背景微微泛黄 */
+    transform: scale(0.97);
+}
+
+/* 2. 已选中状态：激活 */
+/* 暖橙色高亮，实线框 */
+.grid-container.batch-mode .grid-cell.batch-selected {
+    border: 2px solid #FF8A65 !important;   /* 实线，暖橙色 */
+    background: #FFF3E0 !important;         /* 奶油橙背景 */
+    color: #E65100 !important;              /* 深橙色文字 */
+    transform: scale(1);                    /* 恢复原大小 */
+    box-shadow: 0 4px 12px rgba(255, 138, 101, 0.25); /* 柔和投影 */
+    z-index: 10;
+}
+
+/* 3. 选中角标 */
+.grid-container.batch-mode .grid-cell.batch-selected::after {
+    content: "✓";
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: linear-gradient(135deg, #FF8A65 0%, #FF7043 100%);
+    color: white;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    font-size: 13px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #FFF; 
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    animation: popIn 0.2s ease-out;
+}
+
+/* 弹入动画 */
+@keyframes popIn {
+    from { transform: scale(0); }
+    to { transform: scale(1); }
+}
+
+/* ✅ 关键修正：确保 Emoji 和图标 不模糊、不变灰 */
+.grid-container.batch-mode .grid-cell .cell-icon {
+    filter: none !important;    /* 移除灰度滤镜 */
+    opacity: 1 !important;      /* 移除透明度 */
+}
+
+/* 1. 地图容器 */
+.grid-container {
+    flex: 1; 
+    overflow-y: auto; 
+    padding: 25px;
+    display: grid; 
+    grid-template-columns: repeat(7, 1fr); 
+    
+    /* ✅ 修改点在这里：横向间距保持紧凑，纵向间距拉大 */
+    column-gap: 12px;  /* 左右紧一点，形成"行"的感觉 */
+    row-gap: 30px;     /* 上下宽一点，把每一周明显隔开 */
+    
+    align-content: start;
+    transition: opacity 0.2s;
+    
+    /* 可选：底部留出更多空白，防止到底部很难受 */
+    padding-bottom: 80px; 
+}
