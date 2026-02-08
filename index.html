@@ -12,40 +12,43 @@
 	<link rel="stylesheet" href="css/modal.css">
 	<link rel="stylesheet" href="css/class-mgr.css">
 	<link rel="stylesheet" href="css/suc.css">
+	<link rel="stylesheet" href="css/batch-entry.css">
+	<link rel="stylesheet" href="css/late-modal.css">
+	<link rel="stylesheet" href="css/act-manage-map.css">
+	<link rel="stylesheet" href="css/global-reward-model.css">
+	<link rel="stylesheet" href="css/set-view.css">
+	<link rel="stylesheet" href="css/undo-batch-entry.css">
+	<link rel="stylesheet" href="css/undo_log.css">
+	
 </head>
 <body>
-
-    <div id="batchToolbar" class="batch-bar">
-        <div style="font-weight:bold; font-size:14px;">
-            已选中 <span id="selectedCount" style="color:#FFEB3B; font-size:18px;">0</span> 天
-        </div>
-        
-        <div id="tools-homework" class="batch-group">
-            <button class="btn-tool" style="background:#4CAF50; border-color:#4CAF50;" onclick="applyBatch('done')">✅ 设为已交</button>
-            <button class="btn-tool" style="background:#FF5252; border-color:#FF5252;" onclick="applyBatch('missing')">❌ 设为缺交</button>
-        </div>
-
-        <div id="tools-map" class="batch-group">
-            <button class="btn-tool" >🏖️ 设为休息</button>
-            <button class="btn-tool" >🔒 设为锁定</button>
-            <button class="btn-tool" >📝 设为普通</button>
-        </div>
-
-        <div style="width:1px; background:rgba(255,255,255,0.3); margin:0 5px;"></div>
-        <button class="btn-tool cancel" onclick="exitBatchMode()">退出批量</button>
-    </div>
-
     <div class="header">
         <h1><span>🏝️</span> 作业冒险岛</h1>
         <div style="display:flex; align-items:center; gap:10px;">
+			<button class="btn-ghost" onclick="openBatchModal()">📝录入作业</button>
+			<button class="btn-ghost" onclick="openLateModal()">🕒补交作业</button>
+			<button class="btn-ghost" onclick="showUndoBatchEntry()" >↩️撤销作业</button>
+			<button class="btn-ghost" onclick="showUndoLogModal()">✏️撤销日志</button>
 			<button class="btn-ghost" id="btn-open-cm" onclick="openClassManager();">🏫 班级管理</button>
-            <button class="btn-ghost">🔙 返回首页</button>
             <button class="btn-ghost">📂 导入记录</button>
             <div style="width:1px; height:16px; background:#DDD; margin:0 5px;"></div>
-            <button class="btn-save">💾 保存数据</button>
-            <button class="btn-ghost" style="color:var(--text-main);" onclick="toggleSettings()">⚙️ 设置</button>
+            <button class="btn-save" onclick="exportJsonData();">💾 保存数据</button>
+			<button class="btn-ghost" style="color:var(--text-main);" id="setting_btn_v" onclick="openGlobalSettings()">⚙️基础设置</button>
+            <button class="btn-ghost" style="color:var(--text-main);" id="setting_btn" onclick="toggleSettings()">⚙️活动设置</button>
         </div>
     </div>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	
 	
@@ -53,13 +56,34 @@
 	
 	
 	<script src="components/tpl_student.js"></script> 
-	<script src="components/tpl_admin.js"></script>   
+	<script src="components/tpl_admin_s.js"></script>   
+	<script src="components/tpl_admin_g.js"></script>
 	<script src="components/tpl_modal.js"></script>  
 	<script src="components/tpl_class_mgr.js"></script>
+	<script src="components/tpl_batch_entry.js"></script>
+	<script src="components/tpl_late_modal.js"></script>
+	<script src="components/tpl_gr_model.js"></script>
+	<script src="components/tpl_setting_view.js"></script>
+	<script src="components/tpl_undo_batch_entry.js"></script>
+	<script src="components/tpl_undo_log.js"></script>
+	
 	<script src="js/script.js"></script>
 	<script src="js/logic_modal.js"></script>
-	<script src="js/logic_admin.js"></script>
+	<script src="js/logic_admin_utils.js"></script>
+	<script src="js/logic_admin_s.js"></script>
+	<script src="js/logic_admin_g.js"></script>
 	<script src="js/logic_class_mgr.js"></script>
+	<script src="js/logic_student.js"></script>
+	<script src="js/logic_batch.js"></script>
+	<script src="js/logic_late_modal.js"></script>
+	<script src="js/logic_gr_model.js"></script>
+	<script src="js/logic_setting.js"></script>
+	<script src="js/logic_undo_batch_entry.js"></script>
+	<script src="js/logic_undo_log.js"></script>
+	
+	
+	
+	
 	
 	<script>
         const container = document.getElementById('app-components');
@@ -70,21 +94,20 @@
             }
         }
         container.innerHTML = fullHtml;
-		
+
 		loadData();
     </script>
 	<!-- 成功提示 Toast -->
 	<div id="cm-toast" class="cm-toast" style="display:none;">
-	  <!-- 顶部彩带 -->
-	  <div class="cm-toast-top-icon">🎉</div>
-
-	  <div class="cm-toast-main">
-		<div class="cm-toast-icon">✅</div>
-		<div class="cm-toast-body">
-		  <div class="cm-toast-title" id="cm-toast-title">班级创建成功！</div>
-		  <div class="cm-toast-sub" id="cm-toast-sub">🎉 录入：0 人</div>
-		</div>
-	  </div>
-	</div>
+    <div class="cm-toast-top-icon">🎊</div>
+    
+    <div class="cm-toast-main">
+        <div class="cm-toast-body" style="text-align: center;">
+            <div class="cm-toast-title" id="cm-toast-title">创建成功</div>
+            <div class="cm-toast-sub" id="cm-toast-sub">录入：0 人</div>
+        </div>
+    </div>
+</div>
+	<!-- 成功提示 结束 -->
 </body>
 </html>
