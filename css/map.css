@@ -1,0 +1,249 @@
+/* ================== 冒险地图核心组件 (精简版) ================== */
+
+/* 1. 地图容器 (合并了原文件头部和尾部的两次定义) */
+.grid-container {
+    flex: 1; 
+    overflow-y: auto; 
+    padding: 25px;
+    display: grid; 
+    grid-template-columns: repeat(7, 1fr); /* 7天一行 */
+    column-gap: 12px;  /* 左右紧凑 */
+    row-gap: 30px;     /* 上下宽敞 */
+    align-content: start;
+    transition: opacity 0.2s;
+    padding-bottom: 80px; 
+}
+
+/* 2. 单个格子基础样式 */
+.grid-cell {
+    background: #FFFFFF; 
+    border: 2px solid #FFE0B2;
+    border-radius: 16px;
+    min-height: 120px; 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    justify-content: center;
+    position: relative; 
+    cursor: pointer; 
+    transition: all 0.2s; 
+    color: #AAA; 
+    user-select: none;
+}
+
+/* 基础悬停效果 */
+.grid-cell:hover { 
+    transform: translateY(-3px); 
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05); 
+}
+
+/* 3. 格子内元素样式 */
+.day-label { 
+    position: absolute; 
+    top: 6px; 
+    left: 8px; 
+    font-size: 16px; 
+    font-weight: 900; 
+    color: #455A64; 
+    z-index: 5;
+}
+
+.cell-icon { 
+    font-size: 36px;   
+    margin-bottom: 6px; 
+    transition: 0.2s; 
+    opacity: 0.9;
+}
+
+/* 鼠标悬停图标放大 */
+.grid-cell:hover .cell-icon {
+    transform: scale(1.2);
+    opacity: 1;
+    filter: none;
+}
+
+.cell-status-text { 
+    font-size: 13px; 
+    font-weight: 700; 
+}
+
+.cell-date {
+    position: absolute; 
+    bottom: 5px; 
+    font-size: 11px; 
+    font-weight: 700; 
+    color: #90A4AE; 
+    z-index: 2;
+    letter-spacing: 0.5px;
+}
+
+/* ================== 4. 业务状态变体 ================== */
+
+/* --- 奖励态 (reward) --- */
+.grid-cell.reward {
+    border: none;
+    background: #FFF8E1; 
+    color: #F57F17;
+    box-shadow: 0 4px 12px rgba(255, 193, 7, 0.15);
+    z-index: 2;
+}
+.grid-cell.reward .cell-date { color: #FFB74D; }
+.grid-cell.reward:hover {
+    transform: translateY(-3px) scale(1.02);
+    background: #FFECB3;
+    box-shadow: 0 8px 20px rgba(255, 193, 7, 0.25);
+}
+
+/* --- 完成态 (done) --- */
+.grid-cell.done { 
+    border: none;
+    background: #E8F5E9; 
+    color: #2E7D32; 
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.15);
+    z-index: 1;
+}
+.grid-cell.done .cell-date { color: #81C784; }
+.grid-cell.done:hover { 
+    transform: translateY(-3px); 
+    background: #C8E6C9; 
+    box-shadow: 0 8px 20px rgba(76, 175, 80, 0.25); 
+}
+
+/* --- 危险/缺交态 (danger) --- */
+.grid-cell.danger { 
+    border: none;
+    background: #FFEBEE; 
+    color: #C62828; 
+    box-shadow: 0 4px 12px rgba(229, 57, 53, 0.2);
+    z-index: 5;
+}
+.grid-cell.danger .cell-date { color: #EF5350; }
+.grid-cell.danger:hover {
+    transform: translateY(-3px);
+    background: #FFCDD2; 
+    box-shadow: 0 8px 20px rgba(229, 57, 53, 0.3);
+}
+.grid-cell.danger .cell-icon { 
+    opacity: 1; 
+    filter: none; 
+    font-size: 38px; 
+}
+
+/* --- 锁定态 (locked) - 合并了原文件的两个定义 --- */
+.grid-cell.locked {
+    background: #FFFFFF; 
+    border: 1px solid #E0E0E0; /* 采用最后的极简清爽版定义 */
+    color: #455A64;            /* 文字颜色使用最后的定义 */
+    box-shadow: none;
+    cursor: default;
+}
+.grid-cell.locked .day-label { color: #455A64; }
+.grid-cell.locked .cell-status-text {
+    opacity: 1;          
+    font-weight: 700;    
+    color: #455A64;      
+}
+/* 锁定态悬停：强制静止 */
+.grid-cell.locked:hover {
+    transform: none !important;      
+    box-shadow: none !important;      
+    cursor: default !important;       
+    background: #FFFFFF !important;   
+    border-color: #E0E0E0 !important; 
+}
+.grid-cell.locked:hover .cell-icon {
+    transform: none !important;          
+}
+
+/* --- 假期/休息态 (holiday) --- */
+.grid-cell.holiday { 
+    background: transparent;     
+	/* 新增代码：使用SVG背景代替border */
+    border: none;
+    background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' rx='16' ry='16' fill='none' stroke='%23CCCCCC' stroke-width='1' stroke-dasharray='6%2c 4' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
+    color: #B0BEC5; 
+}
+.grid-cell.holiday .cell-date { color: #78909C; }
+
+.holiday-badge { 
+    position: absolute; right: 8px; top: 8px; 
+    background: #607D8B; color: white; 
+    border-radius: 6px; font-size: 11px; padding: 2px 6px; font-weight: bold; 
+}
+
+/* ================== 5. 批量模式专用样式 (batch-mode) ================== */
+
+/* 待选择状态 */
+.grid-container.batch-mode .grid-cell {
+    background: #FFFFFF;             
+    border: 2px dashed #FFCCBC;      
+    color: #8D6E63;                  
+    transform: scale(0.95);          
+    box-shadow: none;                
+    transition: all 0.15s;
+    opacity: 1;                      
+}
+.grid-container.batch-mode .grid-cell:hover {
+    border-color: #FF8A65;           
+    background: #FFFBF7;             
+    transform: scale(0.97);
+}
+
+/* 已选中状态 */
+.grid-container.batch-mode .grid-cell.batch-selected {
+    border: 2px solid #FF8A65 !important;   
+    background: #FFF3E0 !important;         
+    color: #E65100 !important;              
+    transform: scale(1);                    
+    box-shadow: 0 4px 12px rgba(255, 138, 101, 0.25); 
+    z-index: 10;
+}
+/* 选中角标 */
+.grid-container.batch-mode .grid-cell.batch-selected::after {
+    content: "✓";
+    position: absolute;
+    top: -8px; right: -8px;
+    background: linear-gradient(135deg, #FF8A65 0%, #FF7043 100%);
+    color: white;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    font-size: 13px; font-weight: bold;
+    display: flex; align-items: center; justify-content: center;
+    border: 2px solid #FFF; 
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    animation: popIn 0.2s ease-out;
+}
+@keyframes popIn {
+    from { transform: scale(0); }
+    to { transform: scale(1); }
+}
+/* 批量模式下图标不模糊 */
+.grid-container.batch-mode .grid-cell .cell-icon {
+    filter: none !important;    
+    opacity: 1 !important;      
+}
+
+/* ================= 6. 学生端休息日只读样式 (完全静止版) ================= */
+
+.grid-cell.stu-holiday-readonly:hover {
+    /* 1. 禁止整体位移和放大 */
+    transform: none !important;       
+    
+    /* 2. 禁止出现阴影 */
+    box-shadow: none !important;      
+    
+    /* 3. 鼠标变回普通箭头 */
+    cursor: default !important;       
+    
+    /* 4. 确保没有实线边框 */
+    border: none !important;           
+    
+    /* 5. 【关键修复】只让背景色透明，千万不要用 'background' 简写，否则会把 SVG 虚线图洗掉 */
+    background-color: transparent !important; 
+}
+
+/* 内部图标也禁止缩放 (保持你原有的设置) */
+.grid-cell.stu-holiday-readonly:hover .cell-icon {
+    transform: none !important;
+    opacity: 0.9 !important; 
+}
