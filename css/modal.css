@@ -1,0 +1,324 @@
+/* ================== Day Management Modal (Namespace: dm-) ================== */
+
+/* 1. 基础变量 (局部作用域) */
+.dm-modal-content {
+    --dm-primary: #FF6B6B;
+    --dm-bg: #FFF9F0;
+    --dm-border: #FFCCBC;
+    --dm-text: #5D4037;
+    --dm-gray: #FAFAFA;
+}
+/* 禁用状态的导航按钮 */
+.dm-nav-btn.disabled {
+    opacity: 0.4;           /* 变半透明/变灰 */
+    pointer-events: none;   /* 禁止鼠标点击 */
+    cursor: not-allowed;
+    filter: grayscale(100%); /* 去色 */
+}
+/* 2. 弹窗骨架 */
+.dm-modal-overlay {
+    /* 1. 统一背景色：深咖色半透明，与录入弹窗一致 */
+    background: rgba(93, 64, 55, 0.5);
+    
+    /* 2. 统一质感：毛玻璃 */
+    backdrop-filter: blur(8px);
+    
+    /* 3. 使用缩放动画 */
+    animation: popInEffect 0.3s ease-out;
+    
+    /* 其它定位属性保持不变 */
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    z-index: 1000;
+    display: none; 
+    justify-content: center;
+    align-items: center;
+}
+/* 新增：复刻 batch-entry 的缩放动画 */
+@keyframes popInEffect {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+/* 新增：待配置/无作业状态 */
+.grid-cell.pending {
+    background: #FAFAFA;       /* 极淡的灰白背景 */
+    border: 2px dashed #B0BEC5; /* 灰色虚线边框：核心特征 */
+    color: #90A4AE;            /* 灰色文字 */
+}
+
+/* 让空状态的图标稍微淡一点，不要太抢眼 */
+.grid-cell.pending .cell-icon {
+    opacity: 0.5;
+    filter: grayscale(100%);
+}
+.dm-modal-content {
+    width: 800px; height: 800px; max-width: 95vw; max-height: 90vh;
+    background: white; border-radius: 16px;
+    display: flex; flex-direction: column; overflow: hidden;
+    position: relative;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+.dm-modal-header {
+    padding: 15px 20px; border-bottom: 1px solid #EEE;
+    display: flex; justify-content: space-between; align-items: center;
+    background: #FFF;
+}
+#modalTitle { font-size: 18px; font-weight: 800; color: var(--dm-text); }
+.dm-btn-close {
+	/* 1. 尺寸与形状 */
+    width: 34px; 
+    height: 34px;
+    border-radius: 50%; /* 正圆 */
+    
+    /* 2. 默认外观 (白底橙框红叉) */
+    background: #FFFFFF; 
+    border: 2px solid #FFCCBC; /* 浅橙色边框 */
+    color: #FF6B6B;            /* 叉叉的颜色 */
+    font-size: 18px;           /* 叉叉的大小 */
+    
+    /* 3. 布局居中 */
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+    
+    /* 4. 鼠标手势与动画 */
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); /* 带一点回弹的动画 */
+    
+    /* 消除默认按钮样式（如果是button标签） */
+    padding: 0;
+    outline: none;
+}
+.dm-btn-close:hover {
+    background: #FF6B6B;       /* 背景变红 */
+    color: #FFFFFF;            /* 叉叉变白 */
+    border-color: #FF6B6B;     /* 边框融为一体 */
+    transform: rotate(90deg) scale(1.1); /* 旋转90度并稍微放大 */
+    box-shadow: 0 4px 10px rgba(255, 107, 107, 0.3); /* 加一点光晕 */
+}
+/* 3. 左右布局容器 */
+.dm-modal-body {
+    display: flex; flex: 1; overflow: hidden; position: relative;
+}
+
+/* --- 左侧侧边栏 --- */
+.dm-sidebar {
+    width: 160px; background: var(--dm-bg); border-right: 1px solid #FFE0B2;
+    padding: 15px; display: flex; flex-direction: column; gap: 12px;
+    overflow-y: auto;
+}
+
+.dm-nav-btn {
+	height: 100px;        /* 1. 设定你想要的高度，例如 50px */
+    padding: 0 15px;     /* 2. 上下padding改为0，左右保持15px */
+    background: white; border: 2px solid #FFE0B2; border-radius: 10px;
+    cursor: pointer; display: flex; align-items: center; gap: 10px;
+    color: #8D6E63; transition: 0.2s;
+}
+.dm-nav-btn:hover { transform: translateY(-2px); border-color: var(--dm-primary); }
+/* 找到这部分并替换 */
+.dm-nav-btn.active { 
+    /* 旧代码是 background: var(--dm-primary); 删掉或注释掉 */
+    
+    /* ✅ 新样式：背景极其淡雅，边框和文字使用主题色 */
+    background: #FFEBEE;         /* 非常淡的粉红色背景 */
+    border-color: var(--dm-primary); /* 边框保持红色，确立边界 */
+    color: var(--dm-primary);    /* 文字和图标变成红色，与背景形成对比 */
+    
+    /* 增加一点阴影让它浮起来，增加质感 */
+    box-shadow: 0 4px 12px rgba(255, 107, 107, 0.15); 
+    font-weight: 800;            /* 加粗文字，强调选中状态 */
+}
+.dm-nav-icon { font-size: 20px; }
+.dm-nav-text { font-size: 14px; font-weight: bold; }
+
+/* --- 右侧内容区 --- */
+.dm-main-content {
+    flex: 1; padding: 25px 30px 80px 30px; /* 底部预留按钮空间 */
+    overflow-y: auto; background: white;
+}
+
+/* 底部按钮条 */
+.dm-footer {
+    position: absolute; bottom: 0; left: 160px; right: 0;
+    padding: 15px 30px; background: rgba(255,255,255,0.9);
+    border-top: 1px solid #EEE; display: flex; justify-content: flex-end;
+}
+.dm-btn-save {
+    background: linear-gradient(135deg, #4ECDC4 0%, #26A69A 100%);
+    color: white; border: none; padding: 10px 40px; border-radius: 30px;
+    font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(78,205,196,0.3);
+}
+
+/* ✅ 新增：当按钮处于 disabled 状态时的样式 */
+.dm-btn-save:disabled {
+    background: #E0E0E0;       /* 强制覆盖渐变，设为纯灰色 */
+    color: #9E9E9E;            /* 文字变深灰 */
+    cursor: not-allowed;       /* 鼠标变成禁止手势 */
+    box-shadow: none;          /* 去掉阴影 */
+    transform: none;           /* 禁止 hover 时的位移效果 */
+    pointer-events: none;      /* 禁止一切鼠标事件 */
+}
+
+/* 4. 面板通用样式 */
+.dm-panel { display: none; animation: dmFadeIn 0.3s; }
+.dm-panel.active { display: block; }
+@keyframes dmFadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+.dm-section-title {
+    font-size: 16px; font-weight: 800; color: var(--dm-text);
+    margin-bottom: 15px; border-left: 4px solid var(--dm-primary); padding-left: 10px;
+}
+.dm-tip {
+    background: #E3F2FD; color: #1565C0; padding: 10px; border-radius: 6px;
+    font-size: 12px; margin-bottom: 15px; border: 1px solid #BBDEFB;
+}
+.dm-tip.warning { background: #FFEBEE; color: #C62828; border-color: #FFCDD2; }
+
+/* --- Tab 1: 规则 (Rules) --- */
+.dm-rules-row { display: flex; gap: 15px; margin-bottom: 15px; }
+.dm-rules-row.single { margin-bottom: 0; }
+
+.dm-radio-card {
+    flex: 1; display: flex; align-items: center; padding: 12px 15px;
+    border: 2px solid #EEE; border-radius: 10px; cursor: pointer;
+    background: white; transition: 0.2s;
+}
+.dm-radio-card:hover { border-color: #FFCCBC; background: #FFFBF7; }
+.dm-radio-card input { margin-right: 10px; accent-color: var(--dm-primary); transform: scale(1.2); }
+.dm-radio-info { display: flex; flex-direction: column; }
+.dm-radio-title { font-weight: 800; font-size: 14px; color: #333; }
+.dm-radio-desc { font-size: 11px; color: #999; margin-top: 2px; }
+.dm-radio-card input:checked + .dm-radio-info .dm-radio-title { color: #E65100; }
+
+.dm-reward-box {
+    background: #FFF8E1; border: 1px dashed #FFB74D; border-radius: 10px;
+    padding: 20px; margin-top: 15px; position: relative;
+}
+.dm-badge {
+    position: absolute; top: -10px; left: 15px; background: #FF9800; color: white;
+    padding: 2px 10px; border-radius: 10px; font-size: 11px; font-weight: bold;
+}
+.dm-form-row { display: flex; gap: 15px; }
+.dm-form-group label { display: block; font-size: 11px; font-weight: bold; color: #8D6E63; margin-bottom: 5px; }
+.dm-input { width: 100%; height: 36px; border: 2px solid #FFE0B2; border-radius: 6px; padding: 0 10px; outline: none; }
+.dm-input:focus { border-color: var(--dm-primary); }
+
+/* --- Tab 2: 科目 (Subjects) --- */
+.dm-subject-row {
+    background: white; border: 1px solid #EEE; border-radius: 10px;
+    padding: 15px; margin-bottom: 12px; display: flex; align-items: center; gap: 15px;
+}
+.dm-subject-row.disabled { background: #FAFAFA; opacity: 0.6; }
+.dm-subject-row.disabled input { pointer-events: none; }
+
+.dm-subject-ctrl { display: flex; align-items: center; gap: 10px; width: 120px; flex-shrink: 0; }
+.dm-subj-name { font-weight: 800; font-size: 15px; color: #333; }
+
+.dm-subject-inputs { flex: 1; display: flex; gap: 10px; }
+.dm-input-mini { 
+    flex: 1; 
+    /* 🔴 关键！加上这行，允许输入框被压缩，否则它会把表格撑爆 */
+    min-width: 0; 
+    width: 80px;
+    height: 32px; 
+    border: 1px solid #DDD; 
+    border-radius: 4px; 
+    padding: 0 5px; /* 内边距也可以稍微改小一点 */
+    font-size: 12px; 
+    outline: none; 
+    transition: 0.2s;
+}
+.dm-input-mini:focus { border-color: #4ECDC4; box-shadow: 0 0 0 2px rgba(78,205,196,0.1); }
+
+/* 开关样式 */
+.dm-switch { position: relative; display: inline-block; width: 36px; height: 20px; }
+.dm-switch input { opacity: 0; width: 0; height: 0; }
+.dm-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #CCC; transition: .4s; border-radius: 34px; }
+.dm-slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 2px; bottom: 2px; background-color: white; transition: .4s; border-radius: 50%; }
+input:checked + .dm-slider { background-color: #4ECDC4; }
+input:checked + .dm-slider:before { transform: translateX(16px); }
+
+/* --- Tab 3: 请假 (Attendance) --- */
+.dm-flex-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+
+/* 搜索框修复 */
+.dm-search-wrapper { position: relative; width: 200px; }
+.dm-search-input {
+    width: 100%; height: 32px; border: 1px solid #DDD; border-radius: 16px;
+    padding: 0 10px 0 30px; font-size: 12px; outline: none; box-sizing: border-box; /* 关键 */
+}
+.dm-search-icon { position: absolute; left: 10px; top: 8px; font-size: 12px; color: #999; }
+
+.dm-grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; }
+.dm-stu-card {
+    display: flex; align-items: center; gap: 8px; padding: 8px;
+    border: 1px solid transparent; border-radius: 8px; cursor: pointer; background: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.03); user-select: none;
+}
+.dm-stu-card.active { background: #E8F5E9; border-color: #A5D6A7; }
+.dm-stu-card.excluded { background: #F5F5F5; border-color: #EEE; opacity: 0.6; }
+.dm-avatar { width: 30px; height: 30px; border-radius: 50%; background: #DDD; color: white; display: flex; align-items: center; justify-content: center; font-size: 12px; }
+.dm-stu-card.active .dm-avatar { background: #81C784; }
+.dm-stu-info .dm-name { font-size: 13px; font-weight: bold; color: #333; }
+.dm-stu-info .dm-status { font-size: 10px; color: #999; }
+
+/* --- Tab 4: 话术 (Scripts) --- */
+.dm-script-box { background: #FAFAFA; border: 1px solid #EEE; padding: 15px; border-radius: 8px; }
+.dm-script-label { font-weight: bold; color: #5D4037; margin-bottom: 8px; font-size: 13px; }
+.dm-textarea {
+    width: 100%; height: 80px; border: 1px solid #DDD; border-radius: 6px; padding: 10px;
+    font-size: 12px; color: #555; resize: none; font-family: inherit;
+}
+.dm-btn-copy {
+    background: white; border: 1px solid #FFCCBC; color: #E65100;
+    padding: 5px 15px; border-radius: 20px; font-size: 12px; cursor: pointer;
+}
+.dm-btn-copy:hover { background: #FFF3E0; }
+
+/* ================== Tab 4: 作业详情监控专用样式 ================== */
+
+/* 顶部 Tabs */
+.dm-hw-tabs { display: flex; gap: 8px; background: #F5F5F5; padding: 4px; border-radius: 8px; }
+.dm-hw-tab {
+    padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: bold; color: #999;
+    transition: 0.2s;
+}
+.dm-hw-tab.active { background: white; color: var(--dm-primary); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+
+/* 左侧网格区域 */
+.dm-status-grid-area {
+    flex: 1; border: 1px solid #EEE; border-radius: 12px; padding: 15px;
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 10px; align-content: start; overflow-y: auto;
+}
+
+/* 学生小方块 */
+.dm-status-box {
+    border: 1px solid #EEE; border-radius: 8px; padding: 10px 5px;
+    text-align: center; background: #FAFAFA;
+}
+.dm-status-box .name { font-size: 13px; font-weight: bold; margin-bottom: 2px; }
+.dm-status-box .status { font-size: 10px; }
+
+/* 状态色：已交(绿) / 缺交(红) */
+.dm-status-box.done { background: #E8F5E9; border-color: #A5D6A7; color: #2E7D32; }
+.dm-status-box.missing { background: #FFEBEE; border-color: #EF9A9A; color: #C62828; }
+
+/* 右侧黑板区域 */
+.dm-blackboard {
+    width: 240px; background: #FFF3E0; border: 1px dashed #FFB74D; border-radius: 12px;
+    padding: 15px; display: flex; flex-direction: column; flex-shrink: 0;
+}
+.board-header { font-weight: 800; color: #E65100; margin-bottom: 10px; padding-bottom: 5px; border-bottom: 1px solid rgba(230,81,0,0.2); }
+.board-list { flex: 1; overflow-y: auto; margin-bottom: 10px; }
+.board-row { font-size: 12px; color: #BF360C; margin-bottom: 8px; }
+.board-row span { font-weight: bold; padding: 2px 6px; background: rgba(255,255,255,0.5); border-radius: 4px; margin-right: 5px; }
+
+/* 复制按钮 */
+.dm-btn-copy-full {
+    width: 100%; height: 36px; background: #FF9800; color: white; border: none;
+    border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 12px;
+}
+.dm-btn-copy-full:hover { background: #F57C00; }

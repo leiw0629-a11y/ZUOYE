@@ -1,0 +1,305 @@
+/* ================== 补交作业弹窗 (Late Submission) ================== */
+
+/* --- 1. 基础容器 (继承原风格但改名前缀) --- */
+.late-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(93, 64, 55, 0.5);
+    backdrop-filter: blur(8px);
+    z-index: 2000;
+    display: none; justify-content: center; align-items: center;
+    animation: lateFadeIn 0.3s ease-out;
+}
+@keyframes lateFadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+
+.late-layout-container {
+    width: 1000px; height: 85vh; max-height: 800px; min-height: 600px;
+    background-color: #FFF9F0; 
+    background-image: radial-gradient(#FFE0B2 1px, transparent 1px); background-size: 20px 20px;
+    border-radius: 28px; border: 1px solid #FFFFFF;
+    box-shadow: 0 0 0 2px #FFCCBC, 0 20px 50px rgba(93, 64, 55, 0.2);
+    display: flex; flex-direction: column; overflow: hidden;
+}
+
+/* --- 2. 顶部标题栏 --- */
+.late-header {
+    height: 70px; background: rgba(255,255,255,0.9);
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 0 30px; border-bottom: 3px dashed #FFEEE4; flex-shrink: 0;
+}
+.late-title {
+    font-size: 22px; font-weight: 900; color: #5D4037; letter-spacing: 1px;
+    display: flex; align-items: center; gap: 10px;
+}
+
+.late-close-btn {
+    width: 32px; height: 32px; border-radius: 50%; border: 2px solid #FFCCBC;
+    background: #fff; color: #FF7043; cursor: pointer; font-size: 16px; transition: 0.2s;
+}
+.late-close-btn:hover { background: #FF7043; color: #fff; transform: rotate(90deg); }
+
+/* --- 3. 主体分栏 --- */
+.late-body {
+    display: flex; flex: 1; padding: 20px; gap: 20px; overflow: hidden;
+}
+
+/* === 左侧：学生列表 === */
+.late-sidebar {
+    width: 180px; /* 👈 宽度调窄 */
+    background: #FFFBF9; border-radius: 20px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.03);
+    display: flex; flex-direction: column; overflow: hidden;
+}
+.late-sidebar-header {
+    height: 50px; display: flex; align-items: center; justify-content: center;
+    font-size: 15px; font-weight: 800; color: #8D6E63;
+    border-bottom: 2px dashed #FFEEE4; background: #FFF8E1;
+}
+.late-student-list {
+    flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 8px;
+}
+.late-student-item {
+    padding: 10px; border-radius: 12px; background: #fff;
+    color: #5D4037; font-weight: 700; font-size: 14px; text-align: center;
+    cursor: pointer; border: 2px solid transparent; transition: 0.2s;
+}
+.late-student-item:hover { transform: translateX(3px); border-color: #FFE0B2; }
+.late-student-item.active {
+    background: #5D4037; color: #fff; box-shadow: 0 4px 10px rgba(93, 64, 55, 0.3);
+}
+
+/* === 右侧：补交任务区域 === */
+.late-main {
+    flex: 1; background: #FFF; border-radius: 20px;
+    display: flex; flex-direction: column; overflow: hidden;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.03);
+}
+
+/* 工具栏 */
+.late-toolbar {
+    height: 60px; padding: 0 25px; display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 2px dashed #FFF3E0; flex-shrink: 0;
+}
+.late-student-name { font-size: 20px; font-weight: 900; color: #5D4037; }
+
+.late-stats-bar {
+    display: flex; gap: 15px; font-size: 13px; font-weight: 700; color: #8D6E63;
+    background: #FFF9F0; padding: 6px 15px; border-radius: 50px; border: 1px solid #FFE0B2;
+}
+.stat-pending { color: #D84315; }
+.stat-done { color: #2E7D32; }
+
+.late-actions { display: flex; gap: 15px; align-items: center; }
+/* 复刻自 batch-entry.css 的 .batch-checkbox-wrapper */
+.late-checkbox-all {
+    display: flex;
+    align-items: center;
+    gap: 6px; 
+    cursor: pointer;
+    margin-right: 15px; /* 保持一点间距 */
+    
+    /* 字体样式 */
+    font-size: 14px;
+    font-weight: 800;
+    color: #8D6E63;
+    user-select: none; 
+    transition: color 0.2s;
+}
+
+/* 悬停变深色 */
+.late-checkbox-all:hover {
+    color: #5D4037;
+}
+
+.late-checkbox-all input { width: 16px; height: 16px; }
+
+.late-btn-submit-all {
+    background: linear-gradient(135deg, #FF7043 0%, #F4511E 100%);
+    color: white; border: none; padding: 8px 20px; border-radius: 50px;
+    font-weight: 800; font-size: 13px; cursor: pointer;
+    box-shadow: 0 4px 10px rgba(244, 81, 30, 0.3); transition: 0.2s;
+}
+.late-btn-submit-all:hover { transform: translateY(-2px);}
+
+/* 任务网格区 */
+.late-grid-area {
+	flex: 1;
+    padding: 25px; overflow-y: auto; background: #FAFAFA;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 🔥 核心：一行三个 */
+    gap: 15px; align-content: start;
+}
+
+/* --- 任务卡片设计 --- */
+.late-card {
+    background: #fff; border-radius: 16px;
+    border: 2px solid #F5F5F5;
+    display: flex; flex-direction: column;
+    transition: 0.2s; position: relative; overflow: hidden;
+	height: 198px;
+	cursor: pointer;
+}
+.late-card:hover {
+    border-color: #FFE0B2; transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(255, 112, 67, 0.1);
+}
+.late-card.selected { border-color: #FF9800; background: #FFFCF7; }
+
+/* 卡片头部 */
+.late-card-header {
+    height: 66px;padding: 12px 15px; display: flex; gap: 10px; align-items: flex-start;align-items: center;
+}
+/* 同时作用于全选框和卡片上的勾选框 */
+.late-checkbox-all input[type="checkbox"],
+.late-card-check {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    
+    /* 🔥 照搬你文件里的颜色设置 */
+    accent-color: #FCF6ED; 
+}
+.late-card-title {
+    font-size: 15px; font-weight: 800; color: #3E2723; line-height: 1.4;
+    /* 文字截断 */
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+
+.late-card-body {
+    padding: 0 15px 15px 15px; display: flex; flex-direction: column; gap: 6px; flex: 1; gap: 6px;
+}
+
+
+/* 科目标签 */
+.late-tag-subject {
+    color: #1565C0;
+    font-weight: 700; 
+    font-size: 12px;
+    
+    /* 🔥 强制重置：关键！ */
+    margin: 0; 
+    padding: 0; /* 这里的 0 确保了它绝对左对齐 */
+    
+    line-height: 1.4; /* 保持一致 */
+    
+    /* 如果你不需要背景色，这就足够了。*/
+    /* 如果想要它和原来一样有背景，可以保留 border-radius，但 padding 必须为 0 才能左对齐 */
+}
+
+.late-card-footer {
+    border-top: 1px solid #F0F0F0; /* 👈 边框改淡一点 */
+    
+    background: #FFFBF7;  
+    color: #E65100;       
+    
+    /* 其他保持不变 */
+    font-size: 13px; font-weight: 800;
+    padding: 10px; text-align: center; cursor: pointer;
+    transition: 0.2s;
+    display: flex; align-items: center; justify-content: center; gap: 5px;
+}
+
+
+.late-card-footer:hover { 
+    background: #FFF3E0; 
+    
+}
+
+/* 1. 范围文字 (最上方，灰色小字) */
+.late-range-text {
+    font-size: 12px;
+    color: #9E9E9E;     /* 浅灰色 */
+    margin: 0;
+	line-height: 1.4;
+}
+
+/* 2. 日期行容器 */
+.late-clean-row {
+    display: block; 
+
+    margin: 0; 
+    padding: 0;
+    line-height: 1.4;
+}
+
+/* 日期文字本身 */
+.late-date-text {
+    font-size: 12px;
+    color: #5D4037;
+    line-height: 1.4; /* 保持一致 */
+}
+
+
+
+/* 微调内边距，让文字紧凑一点 */
+.late-card-body {
+    padding: 0 15px 12px 15px; 
+    display: flex; 
+    flex-direction: column;
+	gap: 8px;
+}
+
+.late-card.selected .late-card-footer {
+    /* 👇 修改这里：选中后的背景色 (比如改成浅橙色) */
+    background: #FFF3E0; 
+    
+    /* 👇 修改这里：选中后的文字颜色 (比如改成深橙色) */
+    color: #E65100;      
+    
+    /* 👇 可选：选中后边框颜色是否要变？不需要可以删掉这行 */
+    border-top: 1px solid #FFE0B2; 
+}
+
+/* 1. 自动添加 "范围:" */
+.late-range-text::before {
+    content: "范围：";
+    /* 如果你想让前缀和内容有不同颜色，可以在这里加 color: #xxx; 否则它会自动继承 */
+}
+
+/* 2. 自动添加 "日期：" */
+.late-date-text::before {
+    content: "日期："; 
+}
+
+/* 3. 自动添加 "内容：" */
+.late-tag-subject::before {
+    content: "内容：";
+}
+
+/* 方案 B CSS */
+
+/* 班级标签：浅色底，深色字 */
+.late-badge-class {
+    font-size: 20px; font-weight: 900; 
+    background: linear-gradient(135deg, #FF6B6B 0%, #FF8E53 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    letter-spacing: 1px;
+}
+
+/* 标题文字 */
+.late-text-action {
+    color: #3E2723;
+    font-size: 20px;
+    position: relative;
+    padding-left: 10px;
+}
+
+/* 加一个小竖线分隔符 */
+.late-text-action::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 14px;
+    width: 2px;
+    background-color: #DDD;
+}
+
+/* 选中(active)后：即使鼠标还停在上面，也不要黄色外框 */
+.late-student-item.active:hover,
+.late-student-item.active:focus,
+.late-student-item.active:active {
+  outline: none !important;
+  box-shadow: none !important;
+  border-color: transparent !important; /* 如果你的黄框是 border 产生的 */
+}

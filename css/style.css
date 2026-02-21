@@ -1,0 +1,309 @@
+/* ================== 1. 核心 DNA (变量库) ================== */
+/* 以后把这段发给AI，它就知道用什么颜色和圆角 */
+:root {
+    /* 品牌色 */
+    --primary: #FF6B6B;
+    --primary-dark: #D32F2F;
+    --primary-gradient: linear-gradient(135deg, #FF6B6B 0%, #FF8E53 100%);
+    --blue-gradient: linear-gradient(135deg, #4ECDC4 0%, #26A69A 100%);
+    
+    /* 状态色 */
+    --danger: #FF5252;
+    --success: #4ECDC4;
+    --warning: #FFB74D;
+    
+    /* 界面基础色 */
+    --bg: #FFF9F0;             /* 全局米色背景 */
+    --panel-bg: #FFFFFF;       /* 卡片白色背景 */
+    --text-main: #5D4037;      /* 主文字色（深咖） */
+    --text-sub: #8D6E63;       /* 次要文字（浅咖） */
+    --border: #FFCCBC;         /* 通用边框色 */
+    
+    /* 物理属性 */
+    --radius: 16px;            /* 统一的大圆角 */
+    --radius-sm: 8px;          /* 小圆角 */
+    --shadow-card: 0 8px 20px rgba(255, 107, 107, 0.15); /* 卡片浮起阴影 */
+    --shadow-sm: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+/* ================== 2. 画布重置 (Reset) ================== */
+/* 统一所有浏览器的基础表现 */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Nunito', 'Microsoft YaHei', sans-serif;
+    background-color: var(--bg);
+    color: var(--text-main);
+    margin: 0; 
+    padding: 20px; 
+    height: 100vh; 
+    overflow: hidden; /* 默认页面不滚动，内部滚动 */
+    
+    /* 那个标志性的波点背景 */
+    background-image: radial-gradient(#FFE0B2 1px, transparent 1px);
+    background-size: 20px 20px;
+	/* 🔴 必须补回这两行，否则垂直布局无效 */
+    display: flex;
+    flex-direction: column;
+}
+
+/* 滚动条美化 */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #FFCCBC; border-radius: 10px; }
+
+button {
+    font-family: inherit;
+    outline: none;
+    cursor: pointer;
+    border: none;
+}
+
+/* ================== 3. 通用容器组件 (Containers) ================== */
+
+/* 基础白色卡片 (所有面板的基底) */
+.panel-base {
+    background: var(--panel-bg);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-card);
+    border: 1px solid rgba(255,255,255,0.5);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* 面板顶部标题栏 */
+.panel-header {
+    padding: 15px;
+    border-bottom: 2px dashed #FFEEE4;
+    background: #fff;
+    font-weight: 800;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0; /* 防止被压缩 */
+}
+
+/* ================== 4. 通用交互组件 (UI Kit) ================== */
+
+/* --- 按钮系列 --- */
+
+/* 1. 幽灵按钮 (次要操作/图标按钮) */
+.btn-ghost {
+    background: transparent;
+    color: var(--text-sub);
+    font-weight: 700;
+    padding: 0 14px;
+    height: 36px;
+    border-radius: 50px;
+    font-size: 13px;
+    display: inline-flex; align-items: center; gap: 6px;
+    transition: 0.2s;
+}
+.btn-ghost:hover { background: #FFF3E0; color: #E65100; }
+
+/* 2. 主色调实心按钮 (保存/确认) */
+.btn-primary, .btn-main {
+    background: var(--blue-gradient);
+    color: white;
+    padding: 0 20px;
+    height: 36px;
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: 13px;
+    box-shadow: 0 4px 10px rgba(78, 205, 196, 0.3);
+    display: inline-flex; align-items: center; gap: 6px;
+    transition: transform 0.2s;
+}
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(78, 205, 196, 0.4); }
+
+/* 3. 白色描边按钮 (辅助操作) */
+.btn-white {
+    background: white;
+    color: var(--text-main);
+    border: 1px solid var(--border);
+    padding: 0 15px;
+    height: 32px;
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: 12px;
+    display: inline-flex; align-items: center; gap: 6px;
+    box-shadow: var(--shadow-sm);
+    transition: 0.2s;
+}
+.btn-white:hover { border-color: var(--primary); color: var(--primary); background: #FFFBF7; }
+
+/* 4. 危险/警告按钮 */
+.btn-danger {
+    background: #FFEBEE; color: #C62828; border: 1px dashed #FFCDD2;
+    padding: 0 15px; height: 32px; border-radius: 50px; 
+    font-weight: 700; font-size: 12px;
+    display: inline-flex; align-items: center; gap: 6px;
+}
+
+/* --- 表单系列 --- */
+.input-base {
+    width: 100%;
+    height: 40px;
+    padding: 0 12px;
+    box-sizing: border-box;
+    border: 2px solid #FFE0B2;
+    border-radius: 10px;
+    background: white;
+    font-family: inherit;
+    font-size: 13px;
+    color: var(--text-main);
+    outline: none;
+    transition: 0.2s;
+}
+.input-base:focus { 
+    border-color: var(--primary); 
+    box-shadow: 0 0 0 3px rgba(255,107,107,0.1); 
+}
+
+/* --- 标签系列 --- */
+.badge {
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 800;
+    display: inline-block;
+}
+
+/* ================== 5. 布局辅助类 (Utilities) ================== */
+.flex-center { display: flex; align-items: center; justify-content: center; }
+.flex-between { display: flex; align-items: center; justify-content: space-between; }
+.w-full { width: 100%; }
+.mt-10 { margin-top: 10px; }
+.mb-10 { margin-bottom: 10px; }
+
+/* ================== 6. 核心布局架构 (Layout Structure) ================== */
+/* 这一部分非常关键，决定了页面是"左右分栏"还是"垂直堆叠" */
+
+/* 顶部导航条容器 */
+.header {
+    display: flex; 
+    justify-content: space-between; /* 两端对齐 */
+    align-items: center;
+    background: var(--panel-bg); 
+    padding: 12px 25px; 
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-card); 
+    margin-bottom: 20px; 
+    flex-shrink: 0;
+    border-left: 6px solid var(--primary);
+}
+.header h1 {
+    margin: 0; font-size: 22px; font-weight: 800;
+    background: var(--primary-gradient); 
+    -webkit-background-clip: text; 
+    -webkit-text-fill-color: transparent;
+    display: flex; align-items: center; gap: 10px;
+}
+
+/* 主容器：包裹 左边栏 + 中间 + 右边栏 */
+.layout-container { 
+    display: flex; /* 关键：开启弹性布局，让子元素横向排列 */
+    gap: 20px;     /* 栏目之间的间距 */
+    flex: 1;       /* 占满剩余高度 */
+    min-height: 0; /* 防止内容过多撑破容器，配合 overflow 使用 */
+    overflow: hidden;
+}
+
+/* --- 三大区域的基础宽高等设置 --- */
+
+/* 1. 左侧栏 (固定宽度) */
+.sidebar { 
+    width: 280px; 
+    flex-shrink: 0; /* 禁止被压缩 */
+    /* 注意：具体的 .panel-base 样式已经由 global 里的类定义了，这里只定宽 */
+}
+
+/* 2. 中间区域 (自适应宽度) */
+.main-area { 
+    flex: 1; /* 自动占据剩余空间 */
+    background: #FFF; 
+    position: relative;
+    display: flex;          /* 让内部的 TopBar 和 Grid 也能垂直排列 */
+    flex-direction: column; 
+    overflow: hidden;       /* 内部滚动 */
+}
+
+/* 中间区域的顶部条 (进度条/按钮) */
+.main-top-bar {
+    padding: 12px 20px; 
+    display: flex; 
+    align-items: center; 
+    justify-content: space-between;
+    background: linear-gradient(to bottom, #fff, #FFFDF9); 
+    border-bottom: 1px solid #FFF3E0;
+    flex-shrink: 0;
+}
+
+/* 3. 右侧栏 (固定宽度) */
+.right-panel { 
+    width: 280px; 
+    flex-shrink: 0; 
+    background: #FAFAFA; 
+}
+
+/* 修复 #app-components 导致的高度塌陷问题 */
+#app-components {
+    flex: 1;                /* 1. 自动占满 body 剩余的所有高度 */
+    display: flex;          /* 2. 变成弹性盒子，传导布局给子元素 */
+    flex-direction: column; /* 3. 保持垂直方向 */
+    min-height: 0;          /* 4. 关键！防止内部滚动条失效溢出 */
+    width: 100%;            /* 5. 宽度占满 */
+    overflow: hidden;       /* 6. 防止出现双重滚动条 */
+}
+
+/* 🔴 修复侧边栏切换后的布局错乱 */
+.sidebar-container {
+    display: flex;          /* 变成弹性盒子 */
+    flex-direction: column; /* 关键！强制从上到下垂直排列 */
+    height: 100%;           /* 占满父容器高度 */
+    width: 100%;            /* 占满宽度 */
+    overflow: hidden;       /* 防止溢出 */
+}
+
+/* 2. 编辑状态 (班主任后台模式) */
+/* 当 body 加上了 .is-editing 类时： */
+body.is-editing .btn-config { 
+    display: flex !important; /* 显示配置按钮 */
+}
+body.is-editing .btn-homework-batch { 
+    display: none !important; /* 隐藏作业按钮 */
+}
+
+/* ================== 补回：遗漏的按钮样式 ================== */
+
+/* 1. 保存数据按钮 (解决问题3) */
+.btn-save {
+    background: var(--blue-gradient); color: white; border: none;
+    padding: 0 20px; height: 36px; border-radius: 50px; font-weight: 700; font-size: 13px;
+    box-shadow: 0 4px 10px rgba(78, 205, 196, 0.3); cursor: pointer;
+    display: flex; align-items: center; gap: 6px; transition: transform 0.2s;
+}
+.btn-save:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(78, 205, 196, 0.4); }
+
+/* 2. 全宽大按钮 (用于复制文案/保存配置) (解决问题2, 5) */
+.btn-full {
+    width: 100%; height: 40px; border-radius: 8px; border: none;
+    background: #E65100; color: white; font-weight: bold; cursor: pointer;
+    box-shadow: 0 3px 8px rgba(230, 81, 0, 0.3); transition: 0.2s;
+    /* 补上flex布局防止文字图标不居中 */
+    display: flex; align-items: center; justify-content: center; gap: 5px;
+}
+.btn-full:hover { background: #EF6C00; }
+
+/* 3. 批量配置按钮的基础外观 (解决问题1) */
+/* 注意：你现在的代码只控制了它的显示/隐藏，漏了它长什么样 */
+.btn-config {
+    background: #FFEBEE; color: #C62828; border: 1px dashed #FFCDD2;
+    padding: 0 15px; height: 32px; border-radius: 50px; font-weight: 700; font-size: 12px;
+    cursor: pointer; align-items: center; gap: 6px;
+    /* 这里不写display，display由底部的 .is-editing 控制 */
+}
+.btn-config:hover { background: #FFCDD2; }

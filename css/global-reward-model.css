@@ -1,0 +1,234 @@
+/* ================== GR 前缀：奖励设置弹窗专用样式 ================== */
+
+/* 1. 遮罩层：毛玻璃效果 */
+.gr_modal_overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    
+    /* 背景色 */
+    background: rgba(93, 64, 55, 0.5); 
+    backdrop-filter: blur(8px);
+    z-index: 9999;
+    
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    /* 默认隐藏状态 */
+    opacity: 0;
+    pointer-events: none;
+    
+    /* 【重要】去掉之前的 transition: opacity...，防止和 animation 打架 */
+    /* transition: opacity 0.3s ease;  <-- 删掉或注释掉 */
+}
+
+/* 显示状态：触发动画 */
+.gr_modal_overlay.show {
+    opacity: 1;
+    pointer-events: auto;
+    
+    /* 【核心】这里加上动画，和班级管理/录入作业一模一样 */
+    animation: popInEffect 0.3s ease-out;
+}
+
+@keyframes popInEffect {
+    from { 
+        opacity: 0; 
+        transform: scale(0.95); 
+    }
+    to { 
+        opacity: 1; 
+        transform: scale(1); 
+    }
+}
+
+
+/* 2. 弹窗主体：复刻 panel-base 风格 */
+.gr_modal_box {
+    width: 800px;
+    max-width: 90%;
+    max-height: 85vh;
+    background: #FFFFFF;
+    border-radius: 20px; /* 比常规略圆 */
+    box-shadow: 0 10px 30px rgba(93, 64, 55, 0.2);
+    display: flex;
+    flex-direction: column;
+    transform: transform: scale(0.95);
+    transition: all 0.3s ease-out;
+    overflow: hidden;
+    border: 4px solid #FFF9F0; /* 外层浅米色边框 */
+}
+.gr_modal_overlay.show .gr_modal_box {
+    transform: scale(1);   /* 恢复正常大小 */
+    opacity: 1;
+}
+
+/* 3. 顶部标题栏 */
+.gr_modal_header {
+    padding: 20px 25px;
+    background: #FFFBF7;
+    border-bottom: 2px dashed #FFEEE4;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.gr_modal_title {
+    font-size: 18px;
+    font-weight: 800;
+    color: #5D4037;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* 4. 内容滚动区 */
+.gr_modal_body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 25px;
+    background: #fff;
+}
+
+/* 5. 分组卡片（对应图片中的白色块） */
+.gr_section_card {
+    border: 1px solid #FFEEE4;
+    border-radius: 16px;
+    margin-bottom: 25px;
+    overflow: hidden;
+}
+
+/* 分组提示条（对应图片中的蓝色提示条，改为你的黄色风格） */
+.gr_section_tip {
+    background: #E0F7FA; /* 保持图片中的清爽蓝，或者用 #FFF3E0 (橙) */
+    color: #006064;
+    padding: 12px 20px;
+    font-size: 13px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border-bottom: 1px solid #B2EBF2;
+}
+
+/* 6. 单行配置项（核心布局） */
+.gr_config_row {
+    display: flex;
+    align-items: center;
+    padding: 15px 20px;
+    border-bottom: 1px solid #FAFAFA;
+    gap: 15px;
+    transition: background 0.2s;
+	
+}
+.gr_config_row:last-child {
+    border-bottom: none;
+}
+.gr_config_row:hover {
+    background: #FFFBF7;
+}
+
+/* --- 复刻 Toggle 开关 (纯CSS实现) --- */
+.gr_switch {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+    flex-shrink: 0;
+}
+.gr_switch input { 
+    opacity: 0; width: 0; height: 0; 
+}
+.gr_slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: #E0E0E0; /* 默认灰 */
+    transition: .4s;
+    border-radius: 24px;
+}
+.gr_slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+/* 选中状态：使用你的成功色 teal/green */
+.gr_switch input:checked + .gr_slider {
+    background-color: #4ECDC4; 
+}
+.gr_switch input:checked + .gr_slider:before {
+    transform: translateX(20px);
+}
+
+/* --- 关卡标签 --- */
+.gr_level_label {
+    font-size: 15px;
+    font-weight: 800;
+    color: #5D4037;
+	width: 80px;        /* ⭐ 加宽 */
+    white-space: nowrap; /* ⭐ 防止文字换行（关键保险） */
+}
+
+/* --- 输入框组 --- */
+.gr_input_group {
+    flex: 1;
+    display: flex;
+    gap: 10px;
+}
+/* 定制输入框：更紧凑，适合一行三个 */
+.gr_input_mini {
+	flex: 1;
+    height: 36px;
+    border: 1px solid #FFE0B2;
+    border-radius: 8px;
+    padding: 0 10px;
+    font-size: 13px;
+    outline: none;
+    color: #5D4037;
+    background: #FFF;
+    transition: all 0.2s;
+}
+.gr_input_mini:focus {
+    border-color: #FF6B6B;
+    box-shadow: 0 0 0 2px rgba(255,107,107,0.1);
+}
+/* 输入框前的伪类文字不好做，直接用 placeholder 提示 */
+
+/* 7. 底部按钮区 */
+.gr_modal_footer {
+    padding: 15px 25px;
+    background: #fff;
+    border-top: 1px solid #F5F5F5;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+/* ================== 核心魔法：开关联动 ================== */
+
+/* 当这一行里的开关(input) 没有被选中(:not(:checked)) 时 */
+.gr_config_row:has(.gr_switch input:not(:checked)) .gr_input_group {
+    
+    /* 1. 视觉变灰 */
+    opacity: 0.4;
+    filter: grayscale(100%);
+    
+    /* 2. 禁止鼠标交互 (无法点击、无法输入) */
+    pointer-events: none;
+    
+    /* 3. 给个禁用光标 (虽然无法点击，但为了视觉提示) */
+    cursor: not-allowed;
+    
+}
+
+/* 也可以让输入框背景变灰，更像禁用状态 */
+.gr_config_row:has(.gr_switch input:not(:checked)) .gr_input_mini {
+    background: #F5F5F5;
+    border-color: #EEE;
+}

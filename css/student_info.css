@@ -1,0 +1,160 @@
+/* 遮罩层 */
+.si_overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(93, 64, 55, 0.5); /* 改成褐色半透明 */
+    backdrop-filter: blur(8px);        /* 模糊度从 2px 改为 8px */
+	animation: popInEffect 0.3s ease-out;
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* 弹窗主体 */
+.si_modal {
+    width: 420px;
+    background: #FFF;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    border: 3px solid #FFCCBC; /* 配合你之前的色系 */
+    overflow: hidden;
+    font-family: "Nunito", "Microsoft YaHei", sans-serif;
+    animation: si_popIn 0.3s ease-out;
+}
+
+@keyframes si_popIn {
+    /* 将 scale(0.9) 改为 scale(0.95)，不仅更流畅，也符合 undo-batch 的参数 */
+    from { transform: scale(0.95); opacity: 0; } 
+    to { transform: scale(1); opacity: 1; }
+}
+
+/* 头部 */
+.si_header {
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px dashed #FFF3E0;
+    background: #FFFBFA;
+}
+
+.si_header_text {
+    font-size: 18px;
+    font-weight: 800;
+    color: #5D4037;
+    display: flex;
+    align-items: center;
+}
+
+.si_divider {
+    margin: 0 8px;
+    color: #FFCCBC;
+    font-weight: 300;
+}
+
+.si_close_btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #FFEBEE;
+    color: #FF5252;
+    border: none;
+    font-size: 20px;
+    line-height: 28px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.2s;
+}
+.si_close_btn:hover {
+    background: #FFCDD2;
+}
+
+/* 列表区域 */
+.si_body {
+    padding: 5px 20px;
+    background: #FFF;
+}
+
+.si_item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 0;
+    border-bottom: 1px solid #FFF3E0;
+}
+
+.si_item_left {
+    flex: 1;
+    margin-right: 15px;
+    overflow: hidden;
+}
+
+.si_subject_row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 4px;
+}
+
+.si_subject_name {
+    font-size: 15px;
+    font-weight: 700;
+    color: #5D4037;
+}
+
+.si_desc {
+    font-size: 13px;
+    color: #546E7A;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-weight: 500;
+}
+
+/* 胶囊通用样式 */
+.si_capsule {
+    padding: 4px 12px;
+    border-radius: 50px;
+    font-size: 13px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+/* 状态色 - 已完成 (绿) */
+.si_status_done {
+    background: #E8F5E9;
+    color: #4CAF50;
+}
+
+/* 状态色 - 缺交 (红) */
+.si_status_missing {
+    background: #FFEBEE;
+    color: #E53935;
+}
+
+/* 状态色 - 老师录入中 (橙) */
+.si_status_input {
+    background: #FFF3E0;
+    color: #FB8C00;
+}
+
+/* 状态色 - 请假/免做 (蓝) */
+.si_status_leave {
+    background: #E3F2FD;
+    color: #42A5F5;
+}
+
+/* 底部 */
+.si_footer {
+    padding: 12px;
+    text-align: center;
+    background: #FAFAFA;
+    color: #B0BEC5;
+    font-size: 12px;
+    border-top: 1px solid #F5F5F5;
+}

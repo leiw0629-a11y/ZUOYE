@@ -1,0 +1,613 @@
+/* ================== 撤销/修改 批量录入弹窗（Undo Batch Copy） ==================
+   前缀：undo_
+================================================================ */
+
+/* 1) 全屏遮罩 */
+.undo_batch-overlay {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(93, 64, 55, 0.5);
+  backdrop-filter: blur(8px);
+  z-index: 2000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  animation: undo_batch_fadeIn 0.3s ease-out;
+}
+
+@keyframes undo_batch_fadeIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* 2) 外层布局容器（大卡片背景） */
+.undo_batch-layout-container {
+  width: 980px;
+  height: 85vh;
+  max-height: 800px;
+  min-height: 600px;
+
+  background-color: #FFF9F0;
+  background-image: radial-gradient(#FFE0B2 1px, transparent 1px);
+  background-size: 20px 20px;
+
+  border-radius: 28px;
+  border: 6px solid #FFFFFF;
+  box-shadow:
+    0 0 0 2px #FFCCBC,
+    0 20px 50px rgba(93, 64, 55, 0.2);
+
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ================= 区域 A：顶部标题栏 ================= */
+.undo_batch-header-card {
+  height: 80px;
+  background: rgba(255, 255, 255, 0.9);
+  flex-shrink: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 30px;
+  border-bottom: 3px dashed #FFEEE4;
+  z-index: 10;
+}
+
+.undo_batch-header-left {
+  display: flex;
+  align-items: baseline;
+  gap: 1px;
+}
+
+.undo_batch-header-right {
+  display: flex;
+  align-items: center;
+}
+
+.undo_batch-title-class {
+  font-size: 24px;
+  font-weight: 900;
+  background: linear-gradient(135deg, #FF6B6B 0%, #FF8E53 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: 1px;
+}
+
+.undo_batch-btn-close {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #FFF;
+  border: 2px solid #FFCCBC;
+  font-size: 16px;
+  color: #FF6B6B;
+  cursor: pointer;
+  transition: 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.undo_batch-btn-close:hover {
+  background: #FF6B6B;
+  color: #fff;
+  border-color: #FF6B6B;
+  transform: rotate(90deg) scale(1.1);
+}
+
+/* ================= 区域 B：下方主体（左右双卡片） ================= */
+.undo_batch-body-split {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  background: transparent;
+  padding: 20px;
+  gap: 20px;
+}
+
+/* 右侧主区域（白卡片） */
+.undo_batch-main-card {
+  flex: 1;
+  background: #FFFFFF;
+  border-radius: 20px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.03);
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
+
+/* 右侧工具条 */
+.undo_batch-toolbar {
+  height: 60px;
+  padding: 0 25px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 2px dashed #FFF3E0;
+  background: #FFF;
+  flex-shrink: 0;
+}
+
+.undo_batch-toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* 右侧标题（任务名）截断 */
+#undo_batch_toolbar_subject_name {
+  max-width: 110px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+}
+
+/* 日期胶囊 */
+.undo_batch-date-wrapper {
+  display: flex;
+  align-items: center;
+  background: #FFF9F0;
+  border: 2px solid #FFE0B2;
+  padding: 6px 15px;
+  border-radius: 50px;
+  color: #5D4037;
+  transition: 0.2s;
+}
+.undo_batch-date-wrapper:hover {
+  border-color: #FF6B6B;
+  background: #FFF;
+}
+
+/* 日期文字（带📅） */
+.undo_batch-date-text {
+  background: #FFF3E0;
+  color: #E65100;
+  border: 1px solid #FFE0B2;
+  font-size: 13px;
+  padding: 3px 10px;
+  border-radius: 8px;
+  font-weight: 800;
+  display: inline-block;
+}
+.undo_batch-date-text::before {
+  content: "📅 ";
+  margin-right: 4px;
+  font-size: 14px;
+}
+
+/* “完成录入”按钮 */
+.undo_batch-btn-confirm {
+  background: #795548;
+  color: #fff;
+  border: none;
+  padding: 0 25px;
+  height: 38px;
+  border-radius: 50px;
+  font-weight: 800;
+  font-size: 13px;
+  cursor: pointer;
+  transition: 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.undo_batch-btn-confirm:hover {
+  transform: translateY(-2px);
+  background: #795548;
+}
+
+/* 全选复选框 */
+.undo_batch-checkbox-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  margin-right: 15px;
+  font-size: 14px;
+  font-weight: 800;
+  color: #8D6E63;
+  user-select: none;
+  transition: color 0.2s;
+}
+.undo_batch-checkbox-wrapper:hover { color: #5D4037; }
+.undo_batch-checkbox-wrapper input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: #FCF6ED;
+}
+
+/* 右侧滚动区域（学生胶囊网格） */
+.undo_batch-scroll-area {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 15px;
+  padding: 25px;
+  overflow-y: auto;
+  align-content: start;
+  background: #FFFFFF;
+}
+
+/* 学生胶囊 */
+.undo_batch-student-capsule {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 44px;
+  background: #FFF;
+  color: #8D6E63;
+  border: 2px solid #FFEEE4;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  position: relative;
+  overflow: hidden;
+}
+.undo_batch-student-capsule:hover {
+  border-color: #FFCCBC;
+  color: #5D4037;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 107, 107, 0.1);
+}
+.undo_batch-student-capsule.undo_active {
+  background: linear-gradient(135deg, #FF8E53 0%, #FF6B6B 100%);
+  border-color: transparent;
+  color: #FFFFFF !important;
+  font-weight: 800;
+  box-shadow: 0 4px 12px rgba(255, 107, 107, 0.4);
+  transform: scale(1.05);
+}
+
+/* ================= 左侧侧边栏（活动/科目切换） ================= */
+.undo_batch-sidebar-card {
+  width: 250px;
+  background: #FFFBF9;
+  border-radius: 20px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.03);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 0;
+}
+
+/* 融合式头部 */
+.undo_batch-fusion-header {
+  height: 60px;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  border-bottom: 2px dashed #FFEEE4;
+  background: #FFFBF9;
+  flex-shrink: 0;
+  z-index: 20;
+}
+
+.undo_batch-title-trigger {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  margin-left: 0;
+  padding: 6px 0;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.undo_batch-title-trigger:hover { background: #FFF3E0; }
+
+.undo_batch-current-name {
+  font-size: 16px;
+  font-weight: 800;
+  color: #5D4037;
+  margin: 0;
+  display: block;
+  max-width: 180px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: center;
+}
+
+.undo_batch-arrow-icon {
+  margin-left: 8px;
+  color: #FF7043;
+  font-weight: 800;
+  font-size: 14px;
+  transition: transform 0.3s;
+  animation: undo_batch_arrow_float 2s infinite ease-in-out;
+}
+@keyframes undo_batch_arrow_float {
+  0%, 100% { transform: translateY(0); opacity: 0.7; }
+  50% { transform: translateY(2px); opacity: 1; }
+}
+
+/* 展开状态下箭头旋转 */
+.undo_batch-sidebar-card.undo_is-picking .undo_batch-arrow-icon {
+  transform: rotate(180deg);
+  animation: none;
+}
+
+.undo_batch-sidebar-stack {
+  position: relative;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* 通用面板层 */
+.undo_batch-panel-view {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background: #FFFBF9;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 面板A：科目列表 */
+#undo_batch-view-subjects {
+  z-index: 5;
+  opacity: 1;
+  transform: translateY(0);
+}
+.undo_batch-sidebar-card.undo_is-picking #undo_batch-view-subjects {
+  filter: blur(4px);
+  opacity: 0.3;
+  transform: scale(0.95);
+  pointer-events: none;
+}
+
+/* 面板B：活动选择器 */
+.undo_batch-picker-view {
+  z-index: 10;
+  opacity: 0;
+  transform: translateY(20px);
+  pointer-events: none;
+  padding: 15px;
+}
+.undo_batch-sidebar-card.undo_is-picking .undo_batch-picker-view {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.undo_batch-picker-search { margin-bottom: 10px; flex-shrink: 0; }
+.undo_batch-picker-list-content { overflow-y: auto; flex: 1; }
+
+/* 科目列表容器 */
+.undo_batch-subject-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+/* 科目按钮 */
+.undo_batch-subject-item {
+  padding: 14px 18px;
+  border-radius: 16px;
+  background: #FDFDFD;
+  color: #8D6E63;
+  border: 2px solid transparent;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  /* tooltip / z-index 的定位基准 */
+  position: relative;
+  z-index: 0;
+}
+.undo_batch-subject-item:hover {
+  transform: translateX(3px);
+  background: #FFFBF7;
+  color: #5D4037;
+  border-color: #FFE0B2;
+  z-index: 9999;
+}
+.undo_batch-subject-item.undo_active {
+  background: #FFF3E0;
+  color: #E65100;
+  border-color: #FFB74D;
+  box-shadow: 0 4px 10px rgba(255, 183, 77, 0.2);
+}
+
+/* 文字截断 */
+.undo_batch-subject-item span {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+}
+
+/* 已完成 */
+.undo_batch-subject-item.undo_done {
+  background-color: #f5f5f5;
+  color: #bdbdbd;
+  border-color: transparent;
+  cursor: default;
+  order: 999;
+  filter: grayscale(100%);
+  opacity: 0.55;
+}
+
+.undo_batch-subject-item.undo_done:hover {
+  transform: none;
+}
+
+.undo_batch-subject-item.undo_done::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  left: 0;
+  top: 100%;
+  margin-top: 8px;
+  background-color: rgba(51, 51, 51, 0.9);
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  z-index: 10000;
+  box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.12s ease;
+}
+.undo_batch-subject-item.undo_done:hover::after {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* 活动项 */
+.undo_batch-act-item {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  margin-bottom: 6px;
+  border-radius: 10px;
+  cursor: pointer;
+  background: #fff;
+  border-left: 3px solid transparent;
+  transition: all 0.2s;
+}
+.undo_batch-act-item:hover {
+  background: #FFF8E1;
+  transform: translateX(2px);
+}
+.undo_batch-act-item.undo_active {
+  background: #FFF3E0;
+  border-left-color: #FF9800;
+  box-shadow: 0 2px 8px rgba(255, 152, 0, 0.1);
+}
+
+.undo_batch-act-status {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 12px;
+  flex-shrink: 0;
+  background: #ccc;
+}
+.undo_batch-act-status.undo_ongoing {
+  background: #4ECDC4;
+  box-shadow: 0 0 6px rgba(78, 205, 196, 0.4);
+}
+
+.undo_batch-act-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: #5D4037;
+  margin-bottom: 3px;
+}
+.undo_batch-act-meta {
+  font-size: 11px;
+  color: #A1887F;
+}
+
+/* 强制禁止横向滚动条 */
+.undo_batch-sidebar-stack,
+.undo_batch-panel-view,
+.undo_batch-picker-list-content,
+.undo_batch-subject-list {
+  overflow-x: hidden !important;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* ================= 考勤统计条 & Tooltip ================= */
+.undo_batch-attendance-bar {
+  display: flex;
+  align-items: center;
+  font-size: 13px;
+  margin-top: 0;
+  color: #8D6E63;
+  flex-shrink: 0;
+  white-space: nowrap;
+  margin-left: 50px;
+  margin-right: 0;
+}
+
+.undo_att-item { font-weight: 600; }
+.undo_att-divider { margin: 0 8px; color: #D7CCC8; }
+.undo_att-item.undo_active { color: #4CAF50; }
+
+/* 请假项 */
+.undo_att-item.undo_leave {
+  color: #FF9800;
+  cursor: help;
+  position: relative;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: #FFF3E0;
+}
+
+.undo_att-item.undo_danger {
+  color: #FF5252;
+  font-weight: 800;
+}
+
+/* tooltip */
+.undo_tooltip-container .undo_tooltip-content {
+  visibility: hidden;
+  opacity: 0;
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(5px);
+  background: #5D4037;
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 8px;
+  width: 140px;
+  z-index: 100;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s;
+  pointer-events: none;
+}
+.undo_tooltip-container:hover .undo_tooltip-content {
+  visibility: visible;
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.undo_tooltip-title {
+  font-size: 11px;
+  opacity: 0.7;
+  margin-bottom: 4px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  padding-bottom: 2px;
+  text-align: center;
+}
+
+.undo_tooltip-list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  margin-top: 4px;
+}
+.undo_tooltip-list span {
+  display: block;
+  font-size: 12px;
+  line-height: 1.4;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

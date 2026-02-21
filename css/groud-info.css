@@ -1,0 +1,258 @@
+/* =========================================
+   0. 基础环境与动画
+   ========================================= */
+.gi_overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(93, 64, 55, 0.5); /* 改成褐色半透明 */
+    backdrop-filter: blur(8px);        /* 模糊度从 2px 改为 8px */
+    z-index: 10000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    animation: gi_fade 0.3s ease-out;
+}
+
+@keyframes gi_fade {
+    /* 将 scale(0.9) 改为 scale(0.95)，不仅更流畅，也符合 undo-batch 的参数 */
+    from { transform: scale(0.95); opacity: 0; } 
+    to { transform: scale(1); opacity: 1; }
+}
+
+/* =========================================
+   1. 主布局容器
+   ========================================= */
+.gi_layout_wrapper {
+    width: 900px;
+    height: 80vh;
+    max-height: 800px;
+    display: flex;
+    gap: 20px;
+    
+    /* 背景纹理 */
+    background-color: #FFF9F0;
+    background-image: radial-gradient(#FFE0B2 1px, transparent 1px);
+    background-size: 20px 20px;
+
+    /* 容器修饰 */
+    padding: 20px;
+    border-radius: 28px;
+    box-shadow: 0 20px 60px rgba(93, 64, 55, 0.4);
+    
+    font-family: "Nunito", "Microsoft YaHei", sans-serif;
+    box-sizing: border-box;
+}
+
+/* =========================================
+   2. 左侧列 (统计 + 名单)
+   ========================================= */
+.gi_col_left {
+    width: 240px;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    gap: 15px; /* 卡片间距 */
+}
+
+/* 通用卡片样式 */
+.gi_card {
+    background: #FFF;
+    border-radius: 20px;
+    border: 4px solid #FFFFFF;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+/* --- 2.1 统计面板 (高度自适应) --- */
+.gi_stats_panel {
+    flex: 0 0 auto;
+    padding: 20px;
+    background: linear-gradient(135deg, #FFF8E1 0%, #FFFFFF 100%);
+}
+
+.gi_card_header_row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+.gi_h_title { font-size: 12px; font-weight: 900; color: #5D4037; }
+.gi_h_date { 
+    font-size: 12px; color: #8D6E63; 
+    background: #FFE0B2; padding: 2px 6px; border-radius: 6px; 
+}
+
+.gi_dashboard { display: flex; align-items: center; }
+.gi_big_data { text-align: center; flex: 1; }
+.gi_percent_txt { font-size: 28px; font-weight: 900; color: #FF9800; line-height: 1; }
+.gi_percent_lbl { font-size: 11px; color: #A1887F; margin-top: 4px; }
+
+.gi_v_line { width: 1px; height: 30px; background: #FFE0B2; margin: 0 15px; }
+
+.gi_small_data { display: flex; flex-direction: column; gap: 4px; }
+.gi_s_row { 
+    display: flex; align-items: center; justify-content: space-between; 
+    gap: 10px; font-size: 12px; color: #8D6E63; 
+}
+.gi_s_val { font-weight: 700; }
+.gi_s_val.success { color: #4CAF50; }
+
+/* --- 2.2 列表面板 (占满剩余高度) --- */
+.gi_list_panel {
+    flex: 1;
+    min-height: 0; /* 防止 flex 子项溢出 */
+}
+
+.gi_list_header {
+    height: 50px;
+    background: #FFF8E1;
+    border-bottom: 2px dashed #FFE0B2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.gi_group_title { font-size: 14px; font-weight: 800; color: #5D4037; }
+
+.gi_list_scroll_area {
+    flex: 1;
+    overflow-y: auto;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.gi_list_scroll_area::-webkit-scrollbar { width: 0; }
+
+/* --- 核心：学生按钮样式 --- */
+.gi_st_btn {
+    width: 100%;
+    padding: 10px 14px;
+    border-radius: 12px;
+    background: #FFFFFF;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    
+    /* 优化过渡效果 */
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), 
+                border-color 0.2s ease, 
+                background-color 0.2s ease, 
+                box-shadow 0.2s ease;
+    
+    border: 2px solid #F5F5F5;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+    will-change: transform; 
+}
+.gi_st_name { font-size: 14px; font-weight: 700; color: #5D4037; }
+.gi_st_status { font-size: 12px; font-weight: 600; }
+
+/* 交互状态：悬浮 */
+.gi_st_btn:hover { 
+    transform: translateY(-2px); 
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+}
+
+.gi_st_btn.active {
+    border-color: #FB8C00 !important;
+    background: #FFFFFF !important;
+    
+    
+    color: #5D4037; 
+    z-index: 10;
+}
+
+.gi_st_btn.active .gi_st_name { font-weight: 800; color: #5D4037; }
+/* 同时也要检查一下 active:hover 的状态，确保悬浮时也没有黑线 */
+.gi_st_btn.active:hover {
+    transform: translateY(-3px);
+    
+}
+
+/* 业务状态色 */
+.gi_st_btn.undone {  }
+.gi_st_btn.undone .gi_st_status { color: #D32F2F; }
+
+.gi_st_btn.done {  }
+.gi_st_btn.done .gi_st_status { color: #2E7D32; }
+
+.gi_st_btn.leave {  }
+.gi_st_btn.leave .gi_st_status { color: #1565C0; }
+
+
+/* =========================================
+   3. 右侧列 (详情)
+   ========================================= */
+.gi_col_right { 
+    flex: 1; 
+    display: flex; 
+    flex-direction: column; 
+}
+.gi_detail_panel { 
+    height: 100%; 
+    background: #FFFFFF; 
+}
+
+.gi_detail_header {
+    height: 70px; 
+    padding: 0 30px;
+    border-bottom: 2px dashed #FFF3E0;
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    flex-shrink: 0;
+}
+.gi_dh_name { font-size: 24px; font-weight: 900; color: #5D4037; margin-right: 10px; }
+
+.gi_close_btn {
+    width: 32px; height: 32px; 
+    border-radius: 50%; border: none;
+    background: #FFEBEE; color: #FF5252; 
+    font-size: 20px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: 0.2s;
+}
+.gi_close_btn:hover { background: #FFCDD2; transform: rotate(90deg); }
+
+.gi_detail_scroll { 
+    flex: 1; 
+    overflow-y: auto; 
+    padding: 10px 30px; 
+}
+.gi_detail_scroll::-webkit-scrollbar { width: 6px; }
+.gi_detail_scroll::-webkit-scrollbar-thumb { background: #FFCCBC; border-radius: 10px; }
+
+/* 任务列表项 */
+.gi_task_item { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    padding: 20px 0; 
+    border-bottom: 1px solid #FFF8E1; 
+}
+.gi_task_main { 
+    flex: 1; 
+    margin-right: 20px; 
+    overflow: hidden; 
+}
+.gi_tm_top { display: flex; align-items: center; margin-bottom: 6px; }
+.gi_tm_title { font-size: 16px; font-weight: 800; color: #5D4037; }
+.gi_tm_desc { 
+    color: #8D6E63; font-size: 13px; 
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; 
+}
+
+/* 胶囊状态标签 */
+.gi_capsule { 
+    padding: 6px 16px; 
+    border-radius: 50px; 
+    font-size: 13px; font-weight: 800; 
+    white-space: nowrap; 
+}
+.gi_capsule.done { background: #E8F5E9; color: #4CAF50; }
+.gi_capsule.missing { background: #FFEBEE; color: #D32F2F; }
+.gi_capsule.input { background: #FFF3E0; color: #F57C00; }
+.gi_capsule.leave { background: #E3F2FD; color: #1976D2; }

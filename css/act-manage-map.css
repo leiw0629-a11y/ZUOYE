@@ -1,0 +1,294 @@
+/* ================== 全局活动卡片 - 最终精致版 ================== */
+
+/* 1. 网格容器 */
+.admin-map-gallery {
+    grid-column: 1 / -1;
+    display: grid !important;
+    width: 100%;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); 
+    gap: 20px;
+    padding: 10px 0;
+    box-sizing: border-box;
+}
+
+/* 2. 卡片本体 */
+.global-card {
+    /* 👇 必须加上这行，把锁“关”在卡片里 */
+    position: relative; 
+    
+    background: #FFFFFF;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    display: flex;
+    flex-direction: column;
+    
+    /* 👇 加上 hidden 可以防止锁太大遮住圆角，或者稍微溢出一点点 */
+    overflow: hidden; 
+    
+    transition: all 0.2s;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+}
+
+/* 修改后：鼠标放上去卡片不动，只有边框变色 */
+.global-card:hover {
+    transform: none;      /* 禁止上浮 */
+    box-shadow: none;     /* 禁止阴影变化 (或者保持原样 box-shadow: 0 2px 8px rgba(0,0,0,0.02); ) */
+    border-color: #FF9800; /* 只变颜色 */
+}
+
+/* 3. 头部：班级名 + 右侧标签 */
+.gc-header {
+    background: #FFF8E1;
+    padding: 8px 12px;
+    border-bottom: 1px dashed #FFE0B2;
+    
+    /* ✅ 修改1：设置为 relative，作为绝对定位的参照物 */
+    position: relative;
+    
+    /* ✅ 修改2：使用 flex + center 让内部的【班级名】强制水平居中 */
+    display: flex;
+    align-items: center;
+    justify-content: center; 
+}
+
+/* 班级名容器 */
+.gc-class-info {
+    /* 保持 flex 是为了让那个 🏫 图标和文字对齐 */
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--text-main);
+    
+    /* 确保它在层级上不会被遮挡 */
+    z-index: 1; 
+}
+
+/* 修改：只保留一个绿色小勾勾 */
+.gc-tag-joined {
+    /* ✅ 核心修改：绝对定位到右侧，不占位 */
+    position: absolute;
+    right: 12px; /* 距离右边的距离，和 padding 保持一致 */
+    top: 50%;    /* 垂直居中 */
+    transform: translateY(-50%); 
+    
+    width: 20px;           
+    height: 20px;
+    border-radius: 50%;    
+    background: #E8F5E9;   
+    color: #2E7D32;        
+    border: 1px solid #C8E6C9;
+    
+    display: flex;         
+    align-items: center;
+    justify-content: center;
+    
+    font-size: 14px;       
+    font-weight: 800;      
+    line-height: 1;
+    padding: 0;         
+    z-index: 2; 
+}
+
+/* 可选：加个小勾勾图标 */
+.gc-tag-joined::before {
+    content: "✓ ";
+    margin-right: 2px;
+    font-weight: 800;
+}
+
+
+.gc-class-name {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--text-main);
+}
+
+/* 4. 中间部分：内容详情 */
+.gc-body {
+    padding: 12px 15px; /* 紧凑一点 */
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px; /* 行间距调小 */
+}
+
+/* 通用行结构：左标签 + 右内容 */
+.gc-row {
+    display: flex;
+    align-items: baseline; /* 文字基线对齐 */
+    gap: 8px;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+/* 左侧标签：统一灰色 */
+.gc-label {
+    color: #999;
+    flex-shrink: 0;
+    white-space: nowrap;
+    min-width: 35px; /* 对齐美观 */
+}
+.gc-label::after { content: "："; }
+
+/* 右侧内容 */
+.gc-value {
+    color: #555;
+    font-weight: 500;
+    word-break: break-all;
+}
+
+/* 特殊：活动名称的高亮样式 */
+.gc-value-title {
+    color: #333;
+    font-weight: 800; /* 保持粗体 */
+    font-size: 14px;  /* 稍微大一点 */
+}
+
+/* 状态颜色 */
+.status-text-active { color: #2E7D32; font-weight: bold; }
+.status-text-ended { color: #9E9E9E; }
+
+/* 5. 底部：通栏按钮区 (融合设计) */
+.gc-footer {
+    border-top: 1px solid #EEE;
+    /* 去掉 padding，让按钮填满 */
+    padding: 0; 
+    height: 32px; /* 强制高度变小 */
+}
+
+.btn-remove-card {
+    width: 100%;
+    height: 100%; /* 填满父容器 */
+    border: none;
+    background: #FAFAFA; /* 默认极浅的灰 */
+    color: #AAA;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    gap: 4px;
+}
+
+/* 悬停效果：变成红色警告条 */
+.btn-remove-card:hover {
+    background: #FFEBEE;
+    color: var(--danger);
+}
+
+/* ================== 顶部工具栏优化 ================== */
+
+/* 1. 右侧操作区整体容器 */
+.admin-toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: 15px; /* 筛选组 和 奖励按钮 之间的距离 */
+}
+
+/* 2. 筛选按钮组 (类似胶囊的外框) */
+.filter-group {
+    display: flex;
+    background: #FFF;
+    border: 1px solid #FFE0B2;
+    border-radius: 8px; /* 整体圆角 */
+    padding: 2px;       /* 内边距，制造留白感 */
+    gap: 2px;           /* 按钮之间的微小缝隙 */
+}
+
+/* 筛选按钮本体 */
+.btn-filter {
+    border: none;
+    background: transparent;
+    padding: 6px 12px;
+    font-size: 13px;
+    color: #8D6E63;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: 500;
+}
+
+/* 悬停状态 */
+.btn-filter:hover {
+    background: #FFF3E0;
+    color: #E65100;
+}
+
+/* 选中状态 (激活) */
+.btn-filter.active {
+    background: #FF9800;
+    color: white;
+    font-weight: bold;
+    box-shadow: 0 2px 5px rgba(255, 152, 0, 0.2);
+}
+
+/* 3. 竖线分隔符 */
+.toolbar-divider {
+    width: 1px;
+    height: 20px;
+    background-color: #E0E0E0;
+}
+
+/* 4. 奖励设置按钮 (特殊样式) */
+.btn-reward-settings {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: #FFFFFF;
+    border: 1px solid #FFCCBC; /* 浅红边框 */
+    color: #D84315;            /* 深红文字 */
+    padding: 6px 15px;
+    border-radius: 20px;       /* 胶囊圆角 */
+    font-size: 13px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+.btn-reward-settings:hover {
+    background: #FFEBEE;
+    border-color: #FF5722;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(255, 87, 34, 0.15);
+}
+
+/* ================== 🔒 锁定状态样式 ================== */
+
+/* 1. 给被锁定的卡片一种“不可用”的灰度感 */
+.subject-card.is-occupied {
+    background-color: #F9FAFB !important; /* 变成浅灰色背景 */
+    border-color: #E0E0E0 !important;     /* 边框变淡 */
+    cursor: not-allowed;                  /* 鼠标变成禁止符号 */
+    opacity: 0.9;
+    position: relative; /* 确保锁头能绝对定位 */
+    overflow: hidden;   /* 防止锁头太大超出格子 */
+}
+
+/* 2. 那个巨大的锁头图标 */
+.lock-watermark {
+    position: absolute;
+    /* 放在卡片右下角 */
+    bottom: 40px;      
+    right: 15px;      
+    
+    font-size: 60px;   
+    line-height: 1;
+    
+    /* 👇 关键修改：加上这行滤镜，把 Emoji 的黄色去掉，变成纯灰 */
+    filter: grayscale(100%); 
+    
+    opacity: 0.15;     /* 淡淡的灰色 */
+    
+    transform: rotate(-15deg); 
+    pointer-events: none;
+    z-index: 0;        
+}
+
+/* 3. 给卡片内容稍微降点级，突出锁 */
+.subject-card.is-occupied .act-title {
+    color: #9E9E9E !important;
+}
