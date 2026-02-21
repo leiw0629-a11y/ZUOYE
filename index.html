@@ -19,36 +19,34 @@
 	<link rel="stylesheet" href="css/set-view.css">
 	<link rel="stylesheet" href="css/undo-batch-entry.css">
 	<link rel="stylesheet" href="css/undo_log.css">
+	<link rel="stylesheet" href="css/student_info.css">
+	<link rel="stylesheet" href="css/groud-info.css">
+	<link rel="stylesheet" href="css/class_info.css">
+	<link rel="stylesheet" href="css/chart-view.css">
+	<link rel="stylesheet" href="css/upd_stu.css">
+	<link rel="stylesheet" href="css/reward_model.css">
+	<link rel="stylesheet" href="css/lock.css">
+	
+	
 	
 </head>
 <body>
     <div class="header">
-        <h1><span>🏝️</span> 作业冒险岛</h1>
+        <h1><span>🏝️</span>作业冒险岛</h1>
         <div style="display:flex; align-items:center; gap:10px;">
-			<button class="btn-ghost" onclick="openBatchModal()">📝录入作业</button>
-			<button class="btn-ghost" onclick="openLateModal()">🕒补交作业</button>
-			<button class="btn-ghost" onclick="showUndoBatchEntry()" >↩️撤销作业</button>
-			<button class="btn-ghost" onclick="showUndoLogModal()">✏️撤销日志</button>
-			<button class="btn-ghost" id="btn-open-cm" onclick="openClassManager();">🏫 班级管理</button>
-            <button class="btn-ghost">📂 导入记录</button>
-            <div style="width:1px; height:16px; background:#DDD; margin:0 5px;"></div>
-            <button class="btn-save" onclick="exportJsonData();">💾 保存数据</button>
-			<button class="btn-ghost" style="color:var(--text-main);" id="setting_btn_v" onclick="openGlobalSettings()">⚙️基础设置</button>
-            <button class="btn-ghost" style="color:var(--text-main);" id="setting_btn" onclick="toggleSettings()">⚙️活动设置</button>
+			<button class="btn-ghost" onclick="openAnalysisView()">📊分析</button>
+			<button class="btn-ghost" onclick="openBatchModal()">📝录入</button>
+			<button class="btn-ghost" onclick="openLateModal()">🕒补交</button>
+			<button class="btn-ghost" onclick="showUndoBatchEntry()" >↩️撤销</button>
+			<button class="btn-ghost" onclick="showUndoLogModal()">✏️日志</button>
+			<button class="btn-ghost" id="btn-open-cm" onclick="openClassManager();">🏫班级</button>
+            <button class="btn-ghost teacher-only" style="display: none;" onclick="triggerImport()">📂导入</button>
+			<button class="btn-save teacher-only" style="display: none;" onclick="exportJsonData()">💾保存</button>
+			<button class="btn-ghost teacher-only" id="setting_btn_v" style="color:var(--text-main); display: none;" onclick="openGlobalSettings()">⚙️基础</button>
+			<button class="btn-ghost teacher-only" id="setting_btn" style="color:var(--text-main); display: none;" onclick="toggleSettings()">⚙️活动</button>
+			<button class="btn-save" onclick="manualLock()">🔒 锁屏</button>
         </div>
     </div>
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 	
 	
 	
@@ -66,6 +64,13 @@
 	<script src="components/tpl_setting_view.js"></script>
 	<script src="components/tpl_undo_batch_entry.js"></script>
 	<script src="components/tpl_undo_log.js"></script>
+	<script src="components/tpl_student_info.js"></script>
+	<script src="components/tpl_group_info.js"></script>
+	<script src="components/tpl_class_info.js"></script>
+	<script src="components/tpl_chart.js"></script>
+	<script src="components/tpl_updStu.js"></script>
+	<script src="components/tpl_cls_reward.js"></script>
+	<script src="components/tpl_lock.js"></script>
 	
 	<script src="js/script.js"></script>
 	<script src="js/logic_modal.js"></script>
@@ -80,9 +85,21 @@
 	<script src="js/logic_setting.js"></script>
 	<script src="js/logic_undo_batch_entry.js"></script>
 	<script src="js/logic_undo_log.js"></script>
-	
-	
-	
+	<script src="js/logic_student_info.js"></script>
+	<script src="js/logic_groud_info.js"></script>
+	<script src="js/logic_class_info.js"></script>
+	<script src="js/logic_student_right.js"></script>
+	<script src="js/logic_student_left.js"></script>
+	<script src="js/logic_student_middle.js"></script>
+	<script src="js/logic_chart.js"></script>
+	<script src="js/logic_chart_export.js"></script>
+	<script src="js/logic_chart_data.js"></script>
+	<script src="js/logic_chart_render.js"></script>
+	<script src="js/logci_reward_cls.js"></script>
+	<script src="js/logic_io.js"></script>
+	<script src="js/logic_lock.js"></script>
+
+	<script src="js/echarts.min.js"></script>
 	
 	
 	<script>
