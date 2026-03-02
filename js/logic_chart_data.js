@@ -115,7 +115,6 @@ function buildChartData(type, targetName, className, startDate, endDate) {
     let dayTime = startDate.getTime();
     const endTime = endDate.getTime();
 
-    // 3. 按日期遍历进行统计
     while (dayTime <= endTime) {
         const curDate = new Date(dayTime);
         const y = curDate.getFullYear();
@@ -123,9 +122,9 @@ function buildChartData(type, targetName, className, startDate, endDate) {
         const d = String(curDate.getDate()).padStart(2, '0');
         const dateStr = `${y}-${m}-${d}`;
 
-        lineCategories.push(`${m}-${d}`);
+        // 【注意：删除了原先在这里无脑 push 到 lineCategories 的代码】
 
-        // ====== 🟢 新增：查询当天的 休/假 状态 ======
+        // ====== 查询当天的 休/假 状态 ======
         let isRestDay = false;
         let isAllLeave = false;
         
@@ -158,10 +157,15 @@ function buildChartData(type, targetName, className, startDate, endDate) {
         const daysTasks = tasksByDate[dateStr] || [];
 
         if (daysTasks.length === 0) {
-            // 没有任务（此时依然把 dayLabel 塞进去）
+            // 规则1：【热力图】永远推入数据，保证日历连续
             heatmapData.push([dateStr, 0, dayLabel]);
-            lineTargetData.push(0);
-            lineClassData.push(0);
+            
+            // 规则2 & 3：【折线图】如果是工作日但没作业，推入 0%（暴露异常）；如果是休息日，直接跳过不录入
+            if (!isRestDay) {
+                lineCategories.push(`${m}-${d}`);
+                lineTargetData.push(0);
+                lineClassData.push(0);
+            }
         } else {
             let targetMissingCount = 0; // 热点图：记录目标群体缺交人次
             let targetDoneCount = 0;    // 折线图：记录目标群体完成人次
@@ -194,24 +198,27 @@ function buildChartData(type, targetName, className, startDate, endDate) {
                 });
             });
 
-            // 🟢 关键点：如果今天是法定休息日，不管他交没交，缺勤数强制清 0
+            // 关键点：如果今天是法定休息日，不管他交没交，缺勤数强制清 0
             if (isRestDay) {
                 targetMissingCount = 0;
             } else {
-                // 🟢 如果不是休息日，才将当天的任务量和缺交量累加到总盘子里
+                // 如果不是休息日，才将当天的任务量和缺交量累加到总盘子里
                 grandTotalMissing += targetMissingCount;
                 grandTotalPossible += (taskCount * totalTargetStudents);
             }
 
-            // 这里原封不动地推入计算出的 targetMissingCount，如果请假没交，数值依旧 > 0
+            // 规则1：【热力图】这里原封不动地推入，如果请假没交，数值依旧 > 0
             heatmapData.push([dateStr, targetMissingCount, dayLabel]);
             
-            // 算百分比完成率
-            const targetRate = Math.round((targetDoneCount / (taskCount * totalTargetStudents)) * 100);
-            const classRate = Math.round((classTotalDoneCount / (taskCount * totalClassStudents)) * 100);
-            
-            lineTargetData.push(targetRate);
-            lineClassData.push(classRate);
+            // 规则2：【折线图】只在非休息日推入完成率数据，休息日直接跳过
+            if (!isRestDay) {
+                const targetRate = Math.round((targetDoneCount / (taskCount * totalTargetStudents)) * 100);
+                const classRate = Math.round((classTotalDoneCount / (taskCount * totalClassStudents)) * 100);
+                
+                lineCategories.push(`${m}-${d}`);
+                lineTargetData.push(targetRate);
+                lineClassData.push(classRate);
+            }
         }
         dayTime += 24 * 3600 * 1000;
     }
