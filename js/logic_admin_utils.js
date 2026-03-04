@@ -45,7 +45,6 @@ function toggleSettings() {
         // 确保两个后台视窗都关闭
         if (adminView) adminView.style.display = 'none';   
         if (globalView) globalView.style.display = 'none'; 
-
         document.body.classList.remove('mode-admin');
     }
 	renderAdminClassSelect('admin_class_slc');
