@@ -43,42 +43,12 @@ window.AppTemplates.student = `
         <div class="main-top-bar">
             <div style="display:flex; align-items:center; gap:10px;">
                 <span id="studentTitle" style="font-size:18px; font-weight:800; color:var(--text-main);">王芳的冒险进度</span>
-                <span class="progress-tag">完成度 15/28</span>
+                <span class="progress-tag">无数据</span>
             </div>
         </div>
 
         <div class="grid-container" id="grid-container-student">
-            <div class="grid-cell done"><span class="day-label">D1</span><div class="cell-icon">🌟</div><div class="cell-status-text">已完成</div></div>
-            <div class="grid-cell done"><span class="day-label">D2</span><div class="cell-icon">🌟</div><div class="cell-status-text">已完成</div></div>
-            <div class="grid-cell done"><span class="day-label">D3</span><div class="cell-icon">🌟</div><div class="cell-status-text">已完成</div></div>
-            <div class="grid-cell danger"><span class="day-label">D4</span><div class="cell-icon">💣</div><div class="cell-status-text">缺交</div></div>
-            <div class="grid-cell holiday"><span class="day-label">D5</span><div class="holiday-badge">休</div><div class="cell-icon">🏖️</div><div class="cell-status-text">免打卡</div></div>
-            <div class="grid-cell done"><span class="day-label">D6</span><div class="cell-icon">🌟</div><div class="cell-status-text">已完成</div></div>
-            <div class="grid-cell done"><span class="day-label">D7</span><div class="cell-icon">🎁</div><div class="cell-status-text">已领奖</div></div>
-
-            <div class="grid-cell done"><span class="day-label">D8</span><div class="cell-icon">🌟</div><div class="cell-status-text">已完成</div></div>
-            <div class="grid-cell done"><span class="day-label">D9</span><div class="cell-icon">🌟</div><div class="cell-status-text">已完成</div></div>
-            <div class="grid-cell done"><span class="day-label">D10</span><div class="cell-icon">🌟</div><div class="cell-status-text">已完成</div></div>
-            <div class="grid-cell done"><span class="day-label">D11</span><div class="cell-icon">🌟</div><div class="cell-status-text">已完成</div></div>
-            <div class="grid-cell done"><span class="day-label">D12</span><div class="cell-icon">🌟</div><div class="cell-status-text">已完成</div></div>
-            <div class="grid-cell danger"><span class="day-label">D13</span><div class="cell-icon">💣</div><div class="cell-status-text">缺交</div></div>
-            <div class="grid-cell done"><span class="day-label">D14</span><div class="cell-icon">🎁</div><div class="cell-status-text">已领奖</div></div>
-
-            <div class="grid-cell locked"><span class="day-label">D15</span><div class="cell-icon">🔒</div><div class="cell-status-text">未开启</div></div>
-            <div class="grid-cell locked"><span class="day-label">D16</span><div class="cell-icon">🔒</div></div>
-            <div class="grid-cell locked"><span class="day-label">D17</span><div class="cell-icon">🔒</div></div>
-            <div class="grid-cell locked"><span class="day-label">D18</span><div class="cell-icon">🔒</div></div>
-            <div class="grid-cell locked"><span class="day-label">D19</span><div class="cell-icon">🔒</div></div>
-            <div class="grid-cell locked"><span class="day-label">D20</span><div class="cell-icon">🔒</div></div>
-            <div class="grid-cell locked"><span class="day-label">D21</span><div class="cell-icon">🔒</div></div>
-
-            <div class="grid-cell locked"><span class="day-label">D22</span><div class="cell-icon">🔒</div></div>
-            <div class="grid-cell locked"><span class="day-label">D23</span><div class="cell-icon">🔒</div></div>
-            <div class="grid-cell locked"><span class="day-label">D24</span><div class="cell-icon">🔒</div></div>
-            <div class="grid-cell locked"><span class="day-label">D25</span><div class="cell-icon">🔒</div></div>
-            <div class="grid-cell locked"><span class="day-label">D26</span><div class="cell-icon">🔒</div></div>
-            <div class="grid-cell locked"><span class="day-label">D27</span><div class="cell-icon">🔒</div></div>
-            <div class="grid-cell locked"><span class="day-label">D28</span><div class="cell-icon">🏆</div><div class="cell-status-text">终极大奖</div></div>
+            
         </div>
     </div>
 
