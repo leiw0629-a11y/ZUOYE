@@ -538,7 +538,7 @@ function onClickCreateClass() {
         return;
     }
     // 3) 学生名单解析
-    const names = studentText.split('\n').map(s => s.trim()).filter(Boolean);
+    const names = studentText.split('\n').map(s => s.trim().replace(/\s+/g, ' ')).filter(Boolean);
     if (names.length === 0) {
         alert('学生名单不能为空');
         return;
