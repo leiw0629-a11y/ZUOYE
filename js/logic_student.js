@@ -73,7 +73,7 @@ function handleStuItem(activeId, type, extra1, extra2) {
             }
         }
     }
-
+	
     // --- ✅ 核心修改：根据类型分发视图 ---
     if (type === 'stu') {
         // 个人视图 (保持不变)
@@ -83,6 +83,7 @@ function handleStuItem(activeId, type, extra1, extra2) {
         // 注意：班级/小组视图通常只依赖 type 和 name，context (class) 会从下拉框再次确认
         renderAggregateGrid(type, extra1);
     }
+	
 	updateRightPanel(type);
 }
 
@@ -91,61 +92,60 @@ function handleStuItem(activeId, type, extra1, extra2) {
  * @param {Object} targetAct - 被操作的活动对象
  */
 function syncStudentView(targetAct) {
-    // 1. 获取学生端当前的班级筛选值
     const stuSelect = document.getElementById('stu_class_slc');
     if (!stuSelect) return; 
     const currentStuClass = stuSelect.value;
 
-    // 2. 【第一道关卡】班级一致性检查
     if (currentStuClass !== 'all' && currentStuClass !== targetAct.className) {
-        console.log("班级不匹配，学生端不刷新" + targetAct.className);
-        return;
+        return; // 班级不匹配，不刷新
     }
 
-    // 3. 记录当前学生端选中的 ID
     const oldStuId = window.currentActivityId; 
 
-    // 4. 刷新右侧活动列表 & 智能决策
     if (typeof renderStudentActivityPanel === 'function') {
-        
-        // ✅ 核心修复逻辑在这里：
         if (!oldStuId) {
-            // 情况 A：之前是“暂无活动” (ID为空)
-            // 策略：传 false，允许 renderStudentActivityPanel 内部执行“默认选中第一个”的逻辑
-            // 效果：自动选中新活动，标题变更为活动名，中间网格显示
-            console.log("从无到有，自动选中默认活动");
+            // 【情况 A】从无到有 (真正的第一次)
             renderStudentActivityPanel(false); 
-        } else {
-            // 情况 B：之前已有选中的活动
-            // 策略：传 true (maintainState)，禁止它自动乱选，我们要自己控制
-            console.log("已有活动，保持静默刷新");
-            renderStudentActivityPanel(true);
-        }
-    }
-
-    // 5. 【第二道关卡】恢复选中状态 (仅针对情况 B)
-    if (oldStuId) {
-        // 恢复列表高亮
-        const targetEl = document.querySelector(`.stu_act_item[data-id="${oldStuId}"]`);
-        if (targetEl) targetEl.classList.add('active');
-
-        // 如果修改的正好是当前看的活动，强制刷新中间网格
-        if (String(oldStuId) === String(targetAct.act_id)) {
-            console.log("⚠️ 正在浏览的活动被修改，强制刷新中间舞台！");
-            document.querySelector('.stu_current_name').innerText = targetAct.activityName;
             
-            // 确保 currentLeftSelection 存在才调用
-            // --- ✅ 修复开始：同样需要分流 ---
-            if (window.currentLeftSelection) {
-                const sel = window.currentLeftSelection;
-                if (sel.type === 'stu') {
-                    renderStudentGrid(sel.type, sel.name, sel.context);
-                } else if (sel.type === 'grd' || sel.type === 'cls') {
-                    renderAggregateGrid(sel.type, sel.name);
-                }
-				updateRightPanel(sel.type);
+            // ⚠️ 核心修复：强制将当前查看的活动设为新建的活动，并修改标题
+            window.currentActivityId = targetAct.act_id;
+            const nameEl = document.querySelector('.stu_current_name');
+            if(nameEl) nameEl.innerText = targetAct.activityName;
+            
+            // 强制刷新中间和右侧
+            forceRefreshStudentGrid(); 
+
+        } else {
+            // 【情况 B】已有活动 (或者是删除后残留了旧ID)
+            renderStudentActivityPanel(true);
+            
+            // 恢复列表高亮
+            const targetEl = document.querySelector(`.stu_act_item[data-id="${oldStuId}"]`);
+            if (targetEl) targetEl.classList.add('active');
+
+            // ⚠️ 核心修复：如果修改的是当前活动，或者旧活动已经被删了导致前后不一致，强制对齐并刷新！
+            if (String(oldStuId) === String(targetAct.act_id) || !document.querySelector(`.stu_act_item[data-id="${oldStuId}"]`)) {
+                
+                window.currentActivityId = targetAct.act_id;
+                const nameEl = document.querySelector('.stu_current_name');
+                if(nameEl) nameEl.innerText = targetAct.activityName;
+                
+                forceRefreshStudentGrid();
             }
         }
+    }
+}
+
+// 提取的公共辅助函数：强制刷新网格和右侧面板
+function forceRefreshStudentGrid() {
+    if (window.currentLeftSelection) {
+        const sel = window.currentLeftSelection;
+        if (sel.type === 'stu') {
+            if (typeof renderStudentGrid === 'function') renderStudentGrid(sel.type, sel.name, sel.context);
+        } else if (sel.type === 'grd' || sel.type === 'cls') {
+            if (typeof renderAggregateGrid === 'function') renderAggregateGrid(sel.type, sel.name);
+        }
+        if (typeof updateRightPanel === 'function') updateRightPanel(sel.type);
     }
 }
 
@@ -163,7 +163,6 @@ function updateRightPanel(type) {
     if (personalLayer) personalLayer.style.display = 'none';
     if (groupLayer) groupLayer.style.display = 'none';
     if (classLayer) classLayer.style.display = 'none';
-
     // 3. 根据类型显示对应层级
     if (type === 'stu') {
         if (personalLayer) personalLayer.style.display = 'flex'; // 注意是用flex布局
