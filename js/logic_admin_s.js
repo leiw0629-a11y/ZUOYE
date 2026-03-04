@@ -374,7 +374,7 @@ function loadActivity(key) {
             batchBtn.style.cursor = "not-allowed";
         }
         if (btnEditArea) {
-            btnEditArea.innerHTML = `<button class="btn-full" style="background:#E0E0E0; color:#999; cursor:not-allowed; border:none;" disabled>活动已结束</button>`;
+            btnEditArea.innerHTML = `<button id="action-btns-subject" class="btn-full btn-save" onclick="deleteActivityRecord('${currentActivity.act_id}', '${currentActivity.className}')">删除活动及作业记录</button>`;
         }
         otherInputs.forEach(el => { if(el) el.disabled = true; });
 
@@ -687,6 +687,7 @@ function saveAndExit() {
     const headerTitle = document.getElementById('header-default-title');
     if (headerTitle) headerTitle.style.display = 'block';
 }
+
 // 执行具体的“修改保存”逻辑
 function saveEditedActivity() {
     // 1. 获取当前 ID
@@ -944,4 +945,55 @@ function generateDayData(dateStr, isAutoRest, subjectVal) {
         exemptStudents: [],
         rewardData: null
     };
+}
+
+function deleteActivityRecord(actId, className) {
+    // 第一步 & 第二步：查找并校验班级和活动ID
+    const targetIndex = window.activityList.findIndex(item => item.act_id === actId && item.className === className);
+
+    if (targetIndex === -1) {
+        alert("❌ 错误：未找到匹配的活动，可能是数据不同步，请刷新页面重试！");
+        return;
+    }
+
+    // 防御性交互：二次确认防止误删
+    const activityName = window.activityList[targetIndex].activityName;
+    const confirmDelete = confirm(`⚠警告：确定要彻底删除【${className} - ${activityName}】吗？\n\n此操作不可逆，将会清空该活动下的排期、所有学生的打卡记录以及撤销日志！`);
+    if (!confirmDelete) return;
+
+    // 第三步：从 activityList 中移除该活动
+    window.activityList.splice(targetIndex, 1);
+
+    // 第四步：从 activityInfo 移除该活动排期记录
+    if (window.activityInfo && window.activityInfo[actId]) {
+        delete window.activityInfo[actId];
+    }
+
+    // 第五步：从 submissionData 移除该活动所有作业记录
+    if (window.submissionData && window.submissionData[actId]) {
+        delete window.submissionData[actId];
+    }
+
+    // 第六步：从 revokedLog 移除该活动所有撤销日志
+    if (window.revokedLog && window.revokedLog[actId]) {
+        delete window.revokedLog[actId];
+    }
+
+    // 第七步：执行本地保存
+    if (typeof saveData === 'function') {
+        saveData();
+    }
+
+    // 第八步：重置 UI 状态并刷新页面
+	showToastHTML('<div class="cm-toast-title">活动及所有相关记录已成功删除！</div>');
+    window.currentAdminActivityKey = null; // 清除当前选中的活动ID
+    refreshAdminView();                    // 重新渲染左侧列表和右侧空白状态
+	
+	// 第九步：静默刷新学生/班级视图
+    const stuClassSelect = document.getElementById('stu_class_slc');
+    if (stuClassSelect && className === stuClassSelect.value) {
+        if (typeof handleClassChange === 'function') {
+            handleClassChange();
+        }
+    }
 }
