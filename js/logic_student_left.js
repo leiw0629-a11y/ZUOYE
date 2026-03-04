@@ -19,7 +19,31 @@ function initStudentDropdown() {
     // 如果有数据，默认选中第一个
     if (classes.length > 0) {
         selectEl.value = classes[0].className;
-    }
+    } else {
+		const titleEl = document.getElementById('studentTitle');
+        if (titleEl) titleEl.innerText = `(暂无活动)`;
+		const container = document.getElementById('grid-container-student');
+		container.innerHTML = `
+            <div style="grid-column: 1 / -1; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; min-height: 400px; color: #B0BEC5;">
+                <div style="font-size: 80px; margin-bottom: 20px;">🏖️</div>
+                <div style="font-size: 18px; font-weight: bold;">暂无活动详情数据</div>
+            </div>`;
+		// 重置数字
+        const elMissing = document.getElementById('stur_p_missing_count');
+        const elStreak = document.getElementById('stur_p_streak_count');
+        const elTotal = document.getElementById('stur_p_total_done');
+        if (elMissing) elMissing.innerText = '-';
+        if (elStreak) elStreak.innerText = '-';
+        if (elTotal) elTotal.innerText = '-';
+
+        // 清空列表显示提示
+        const elList = document.getElementById('stur_p_missing_list');
+        if (elList) elList.innerHTML = `<div style="text-align:center; padding:30px; color:#ccc;">暂无活动数据</div>`;
+
+        // 重置文案
+        const elCopy = document.getElementById('stur_p_copy_content');
+        if (elCopy) elCopy.innerHTML = `<strong>💬沟通预览:</strong><br><span style="color:#999">暂无数据</span>`;
+	}
 }
 
 /**
@@ -171,11 +195,19 @@ function renderCmStudentList(classStr) {
     });
 
     listContainer.innerHTML = html;
-    
-    // 关键：只有在没找到当前选中者时（比如首次进来），才默认触发点击第一项
-    if (!hasActiveItem && data.length > 0) {
+	
+    if (data.length > 0) {
         if (typeof handleStuItem === 'function') {
-            handleStuItem('stu_item_s_0', 'stu', data[0].studentName, data[0].className);
+            if (hasActiveItem) {
+                // 情况 A：原选中者还在。找到他的索引，强制刷新他的数据！
+                const activeIndex = data.findIndex(item => item.studentName === currentSelectedName);
+                if (activeIndex !== -1) {
+                    handleStuItem(`stu_item_s_${activeIndex}`, 'stu', currentSelectedName, data[activeIndex].className);
+                }
+            } else {
+                // 情况 B：原选中者不在了（或首次进来）。默认选中第一个！
+                handleStuItem('stu_item_s_0', 'stu', data[0].studentName, data[0].className);
+            }
         }
     }
 }
