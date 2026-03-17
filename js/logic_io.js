@@ -1,83 +1,81 @@
 
-// 导出
 async function exportJsonData() {
     const raw = localStorage.getItem("schoolManagerData");
-    
+
     if (!raw) {
         showToastHTML('<div class="cm-toast-title">❌未找到数据</div>');
         return;
     }
 
-    try {
-        // 生成自定义文件名: 作业冒险岛_YYYYMMDDHHmmss
-        const now = new Date();
-        const year = now.getFullYear();
-        const month = String(now.getMonth() + 1).padStart(2, '0');
-        const day = String(now.getDate()).padStart(2, '0');
-        const hour = String(now.getHours()).padStart(2, '0');
-        const minute = String(now.getMinutes()).padStart(2, '0');
-        const second = String(now.getSeconds()).padStart(2, '0');
-        const timestamp = `${year}${month}${day}${hour}${minute}${second}`;
-        const fileName = `作业冒险岛_${timestamp}.json`;
+    // 文件名
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const hour = String(now.getHours()).padStart(2, '0');
+    const minute = String(now.getMinutes()).padStart(2, '0');
+    const second = String(now.getSeconds()).padStart(2, '0');
+    const timestamp = `${year}${month}${day}${hour}${minute}${second}`;
+    const fileName = `作业冒险岛_${timestamp}.json`;
 
-        if (window.showSaveFilePicker) {
-            // 1. 先弹出系统保存窗口（必须直接跟随用户点击，不能有延迟）
-            const fileHandle = await window.showSaveFilePicker({
-                suggestedName: fileName,
-                types: [{
-                    description: 'JSON 数据文件',
-                    accept: { 'application/json': ['.json'] },
-                }],
-            });
-            
-            // 2. 用户选好路径点击“保存”后，立马显示“导出中”，传 0 让它一直显示
-            showToastHTML('<div class="cm-toast-title">⏳数据导出中，请稍候...</div>',0);
-            
-            // 3. 关键魔法：暂停 50 毫秒，让浏览器有时间把刚才的 Toast 画到屏幕上
-            // 否则接下来的 JSON 转换会卡死页面，Toast 就显示不出来了
-            await new Promise(resolve => setTimeout(resolve, 50));
-            
-            // 4. 开始进行耗时的 JSON 解析和文件写入
-            const data = JSON.parse(raw);
-            const jsonStr = JSON.stringify(data, null, 2);
-            
-            const writable = await fileHandle.createWritable();
-            await writable.write(jsonStr);
-            await writable.close();
-            
-            // 5. 写入完成，用新的内容覆盖 Toast，并设置 2 秒后自动关闭
-			showToastHTML('<div class="cm-toast-title">数据导出成功！</div>',2000);
-			window.isDataDirty = false;
-            
-        } else {
-            // 降级方案 (老浏览器)
-			showToastHTML('<div class="cm-toast-title">⏳数据导出中，请稍候...</div>',0);
-            await new Promise(resolve => setTimeout(resolve, 50));
-            
-            const data = JSON.parse(raw);
-            const jsonStr = JSON.stringify(data, null, 2);
-            const blob = new Blob([jsonStr], { type: "application/json;charset=utf-8" });
-            const link = document.createElement("a");
-            link.href = URL.createObjectURL(blob);
-            link.download = fileName;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            URL.revokeObjectURL(link.href);
-            showToastHTML('<div class="cm-toast-title">数据导出成功！</div>',2000);
-			window.isDataDirty = false;
+    try {
+        showToastHTML('<div class="cm-toast-title">⏳数据导出中，请稍候...</div>', 0);
+        await new Promise(resolve => setTimeout(resolve, 50));
+
+        const data = JSON.parse(raw);
+        const jsonStr = JSON.stringify(data, null, 2);
+
+        // 优先尝试系统保存
+        if (window.isSecureContext && typeof window.showSaveFilePicker === "function") {
+            try {
+                const fileHandle = await window.showSaveFilePicker({
+                    suggestedName: fileName,
+                    types: [{
+                        description: 'JSON 数据文件',
+                        accept: { 'application/json': ['.json'] },
+                    }],
+                });
+
+                const writable = await fileHandle.createWritable();
+                await writable.write(jsonStr);
+                await writable.close();
+
+                showToastHTML('<div class="cm-toast-title">数据导出成功！</div>', 2000);
+                window.isDataDirty = false;
+                return;
+            } catch (e) {
+                // 用户取消
+                if (e.name === 'AbortError') {
+                    console.log("用户取消了保存");
+                    return;
+                }
+
+                // 关键：文件选择器失败时，不直接报错，改走降级下载
+                console.warn("showSaveFilePicker 失败，改用普通下载：", e);
+            }
         }
+
+        // 降级方案：Blob 下载
+        const blob = new Blob([jsonStr], { type: "application/json;charset=utf-8" });
+        const link = document.createElement("a");
+        const url = URL.createObjectURL(blob);
+
+        link.href = url;
+        link.download = fileName;
+        link.style.display = "none";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        // 稍微延后释放，更稳一点
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+
+        showToastHTML('<div class="cm-toast-title">数据导出成功！</div>', 2000);
+        window.isDataDirty = false;
 
     } catch (e) {
-        // 捕获用户在弹窗里点击“取消”的操作
-        if (e.name === 'AbortError') {
-            console.log("用户取消了保存");
-            // 可选：提示一下取消了，或者什么都不做
-            // showToastHTML('⚠️ 已取消导出', 1500);
-            return;
-        }
         console.error("导出失败：", e);
-		showToastHTML('<div class="cm-toast-title">❌数据导出异常或被拒绝</div>',3000);
+        showToastHTML('<div class="cm-toast-title">❌数据导出异常或被拒绝</div>', 3000);
     }
 }
 
